@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <title>AmneziaWG сервер на Debian</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <!--Мета информация-->
+        <style type="text/css">
+            body {
+                background-color: #fffdec;
+				background-attachment: fixed;
+                color: #111111;
+                font: 12pt serif;
+
+            }
+
+            h2 {
+                background: linear-gradient(to right,#c28585,#fffdec,#fffdec);
+				padding: 0.5% 0 0.5% 0.5%;
+            }
+            
+            h3 {
+                background: linear-gradient(to right,#a1bba0,#fffdec,#fffdec);
+				padding: 0.25% 0 0.25% 1%;
+            }
+
+            ol a {
+                color: #333333;
+            }
+
+            p {
+                margin: 0.2% 1%;
+                padding: 0.25% 0 0.25% 0;
+            }
+
+            p.quote {
+                width: 60%;
+				padding-left: 0.4%;
+                color: #e2e2bb;
+                font: bold 10pt sans-serif;
+                background-color: #444444;
+            }
+
+            p.config {
+                width: 60%;
+				padding-left: 0.4%;
+                color: #70d300;
+                font: bold 10pt sans-serif;
+                background-color: #03002e;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1 style="color:#003000"><p align="center">Руководство по настройке AmneziaWG сервера на Debian</p></h1>
+        <!--Заголовок-->
+
+        <hr />
+
+        <h2>Содержание:</h2>
+        <ol>
+            <li><a href="#1">Первичная настройка системы</a></li>
+                <ul>
+                    <li><a href="#2">Зададим имя компьютера</a></li>
+                    <li><a href="#3">Добавим новое имя компьютера файл в hosts</a></li>
+                    <li><a href="#4">Отключим системный спикер</a></li>
+                    <li><a href="#5">Установка пакетов</a></li>
+                    <li><a href="#6">Локализация ОС</a></li>  
+                </ul>
+            <li><a href="#7">Настройка пользователей</a></li>
+                <ul>
+                    <li><a href="#8">Добавим пользователя и присвоим ему необходимые группы</a></li>
+                    <li><a href="#9">Установим пароль</a></li>
+                    <li><a href="#10">Добавим пользователя в sudo</a></li>
+                    <li><a href="#11">Зададим цвет для приглашения суперпользователя</a></li>
+                    <li><a href="#12">Зададим цвет для приглашения пользователя</a></li>
+                    <li><a href="#13">Добавить каталоги в файл bashrc от root и пользователя</a></li>
+                </ul>
+            <li><a href="#14">Настройка SSH</a></li>
+                <ul>
+                    <li><a href="#15">Отредактируем файл конфигурации ssh</a></li>
+                    <li><a href="#16">Добавим демон ssh в автозагрузку</a></li>
+                    <li><a href="#17">Генерируем ключ rsa на клиенте</a></li>
+                    <li><a href="#18">Загрузка публичного ключа на сервер</a></li>
+                    <li><a href="#19">Запрещаем пароли для ssh соединения</a></li>
+                    <li><a href="#20">Перезапускаем демон ssh</a></li>
+                    <li><a href="#21">Выполнить авторизацию по ssh-ключу со своим удаленным хостом с помощью команды</a></li>
+                </ul>
+            <li><a href="#22">Настрока AmneziaWG сервера</a></li>
+                <ul>
+                    <li><a href="#23">Предварительная настройка сервера</a></li>
+                    <li><a href="#24">Установка и настройка сервера AmneziaWG</a></li>
+                    <li><a href="#25">Генерция ключей для сервера и клиента</a></li>
+                    <li><a href="#26">Создадим файл конфигурации для сервера</a></li>
+                    <li><a href="#27">Создадим файл конфигурации для клиента</a></li>
+                    <li><a href="#28">Запускаем AmneziaWG сервер</a></li>
+                </ul>
+            <li><a href="#29">Настройка бэкапа центра сертификации по rsync</a></li>
+                <ul>
+                    <li><a href="#30">Откроем файл скрипта в редакторе nano</a></li>
+                    <li><a href="#31">Добавим в файл конфигурацию</a></li>
+                    <li><a href="#32">Добавим скрипт в планировщик задач Cron</a></li>
+                </ul>
+        </ol>
+
+        <hr />
+
+        <h2 name="a1"><a name="1"></a>1. Первичная настройка системы</h2>
+        <p><b>#</b> - обозначение суперпользователя<br>
+            <b>$</b> - обозначение пользователя</p>
+            <h3 name="a1"><a name="2">1.1. Зададим имя компьютера:</a></h3>
+                <p class="quote"># hostnamectl set-hostname netserver</p>
+            <h3 name="a1"><a name="3">1.2. Добавим новое имя компьютера файл в hosts:</a></h3>
+                <p>Это необходимо для адекватной работы <b>sudo</b>:</p>
+                <p class="quote"># sed -i -e '1 s/^/127.0.0.1       netserver\n/;' /etc/hosts</p>
+            <h3 name="a1"><a name="4">1.3. Отключим системный спикер:</a></h3>
+                <p class="quote"># echo "blacklist pcspkr" > /etc/modprobe.d/blacklist-pcspkr.conf</p>
+           <h3 name="a1"><a name="5">1.4. Установка пакетов:</a></h3>
+                <p>Обновим систему:</p>
+                <p class="quote"># apt-get --force-yes -y full-upgrade</p>
+                <p>Устанавливаем пакеты через пакетный мэнеджер <b>apt</b>:</p>
+                <p class="quote"># apt update && apt install --force-yes -y sudo locales net-tools man-db curl wget make nano vim htop mc texinfo ssh openssh-server iptables networkd-dispatcher easy-rsa openssl openvpn fail2ban zip rsync screen links neofetch</p>
+                <p>Запускаем демон fail2ban:</p>
+                <p class="quote">systemctl start fail2ban<br>
+                    systemctl enable fail2ban</p>
+            <h3 name="a1"><a name="6">1.5. Локализация ОС:</a></h3>
+                <p>Добавим нужные локали. В файле /etc/locale.gen раскомментируем строчки <b>#en_US.UTF-8 UTF-8 и #ru_RU.UTF-8 UTF-8</b>:</p>
+                <p class="quote"># nano /etc/locale.gen<br>
+                    # locale-gen</p>
+                <p>Обновим локаль и добавим её в систему:</p>
+                <p class="quote"># echo LANGUAGE=en_US.UTF-8 >> /etc/default/locale<br>
+                # echo LC_ALL=en_US.UTF-8 >> /etc/default/locale<br>
+                # echo LANG=C.UTF-8 >> /etc/default/locale<br>
+                # echo LC_TYPE=en_US.UTF-8 >> /etc/default/locale<br>
+                # locale-gen</p>
+            
+        <h2 name="a1"><a name="7"></a>2. Настройка пользователей</h2>
+            <h3 name="a1"><a name="8">2.1. Добавим пользователя и присвоим ему необходимые группы:</a></h3>
+                <p class="quote"># useradd -m -g users -s /bin/bash имя_пользователя</p>
+            <h3 name="a1"><a name="9">2.2. Установим пароль:</a></h3>
+                <p class="quote"># passwd имя_пользователя</p>
+            <h3 name="a1"><a name="10">2.3. Добавим пользователя в файл sudo:</a></h3>
+                <p class="quote"># echo "имя_пользователя ALL=(ALL:ALL) ALL" >> /etc/sudoers</p>
+            <h3 name="a1"><a name="11">2.4. Зададим цвет для приглашения суперпользователя:</a></h3>
+                <p class="quote"># echo "PS1='\[\e[1;31m\][\u@\h \W]\$\[\e[0m\] '" >> ~/.bashrc<br>
+                # source ~/.bashrc</p>
+            <h3 name="a1"><a name="12">2.5. Зададим цвет для приглашения пользователя:</a></h3>
+                <p class="quote">$ echo "PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '" >> ~/.bashrc<br>
+                $ source ~/.bashrc</p>
+            <h3 name="a1"><a name="13">2.6. Добавить каталоги в файл bashrc от root и пользователя:</a></h3>
+                <p>Это необходимо для запуская программ из данных директорий</p>
+                <p>Для пользователя:</p>
+                <p class="quote">$ echo 'export PATH=/usr/sbin/:$PATH' >> ~/.bashrc<br>
+                $ echo 'export PATH=/sbin/:$PATH' >> ~/.bashrc<br>
+                $ echo 'export PATH=/home/(username)/:$PATH' >> ~/.bashrc<br>
+                $ source ~/.bashrc</p>
+                <p>Для root:</p>
+                <p class="quote"># echo 'export PATH=/usr/sbin/:$PATH' >> /root/.bashrc<br>
+                # echo 'export PATH=/sbin/:$PATH' >> /root/.bashrc<br>
+                # echo 'export PATH=/home/(username)/:$PATH' >> /root/.bashrc<br>
+                # source ~/.bashrc</p>
+                   
+        <h2 name="a1"><a name="14"></a>3. Настройка SSH</h2>
+            <h3 name="a1"><a name="15">3.1. Отредактируем файл конфигурации:</a></h3>
+                <p class="quote"># sed -i 's/#Port 22/Port 989/' /etc/ssh/sshd_config<br>
+                # sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config<br>
+                # sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config<br>
+                # sed -i 's/#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/sshd_config<br>
+                # echo 'RSAAuthentication yes' >> /etc/ssh/sshd_config<br>
+                # source ~/.bashrc</p> 
+            <h3 name="a1"><a name="16">3.2. Добавим демон ssh в автозагрузку:</a></h3>
+                <p class="quote"># systemctl enable ssh.service</p>
+            <h3 name="a1"><a name="17">3.3. Генерируем ключ rsa на клиенте:</a></h3>
+                <p class="quote">$ ssh-keygen -t rsa</p>
+            <h3 name="a1"><a name="18">3.4. Загрузка публичного ключа на сервер:</a></h3>
+                <p>Загружаем файл id_rsa.pub в домашнюю директорию нашего удаленного хоста (под Linux).<br>
+                Далее нужно подключиться к нему с помощью SSH и переместить открытый ключ в его целевую директорию с помощью команд:</p>
+                <p class="quote">$ cat id_rsa.pub >> ~/.ssh/authorized_keys<br>
+                $ rm id_rsa.pub</p>
+            <h3 name="a1"><a name="19">3.5. Запрещаем пароли для ssh соединения:</a></h3>
+                <p class="quote"># echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config<br>
+                # source ~/.bashrc</p>
+            <h3 name="a1"><a name="20">3.6. Перезапускаем демон ssh:</a></h3>
+                <p class="quote"># systemctl restart ssh.service</p>
+            <h3 name="a1"><a name="21">3.7. Выполнить авторизацию по ssh-ключу со своим удаленным хостом с помощью команды:</a></h3>
+                <p class="quote">$ ssh -p 989 -i /path-to-private-key username@remote-host-ip-address</p>
+
+        <h2 name="a1"><a name="22"></a>4. Настрока AmneziaWG сервера</h2>
+            <h3 name="a1"><a name="23">4.1. Предварительная настройка сервера:</a></h3>
+                <p>Раскоментирум строку <b>net.ipv4.ip_forward=1</b> в файле <b>/etc/sysctl.conf</b>:</p>
+                <p class="quote"># sed -i "s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/" /etc/sysctl.conf</p>
+                <p>Это необходимо сделать, чтобы включить пересылку IPv4-пакетов через систему. Для применения внесённых изменений, выполните следующую команду:</p>
+                <p class="quote"># sysctl -p</p>
+                <p>Вывод данной данной команды должен содержать строку: <b>net.ipv4.ip_forward=1</b></p>
+            <h3 name="a1"><a name="24">4.2. Установка и настройка сервера AmneziaWG:</a></h3>
+                <p>Выполним команды для установки AmneziaWG из необходимых репозиториев:</p>
+                <p class="quote"># apt install -y software-properties-common python3-launchpadlib gnupg2 linux-headers-$(uname -r)<br>
+                # apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 57290828<br>
+                # echo "deb https://ppa.launchpadcontent.net/amnezia/ppa/ubuntu focal main" | sudo tee -a /etc/apt/sources.list<br>
+                # echo "deb-src https://ppa.launchpadcontent.net/amnezia/ppa/ubuntu focal main" | sudo tee -a /etc/apt/sources.list<br>
+                # apt-get update<br>
+                # apt-get install -y amneziawg</p>
+            <h3 name="a1"><a name="25">4.3.Генерция ключей для сервера и клиента:</a></h3>
+                <p>Создадим директорию для генерации и хранения ключей, переходим в неё:</p>
+                <p class="quote"># mkdir /etc/amnezia/amneziawg/keys<br>
+                # cd /etc/amnezia/amneziawg/keys</p>
+                <p>Генерируем ключи для сервера:</p>
+                <p class="quote"># awg genkey | tee privatekey.server | awg pubkey > publickey.server<br>
+                <p>Генерируем ключи для клиента:</p>
+                <p class="quote"># awg genkey | tee privatekey.client | awg pubkey > publickey.client<br>
+                 # awg genpsk > presharedkey.client</p>
+            <h3 name="a1"><a name="26">4.4. Создадим файл конфигурации для сервера:</a></h3>
+                <p>Cоздаем файл конфигурации сервера с помощью редактора <b>nano</b>:</p>
+                <p class="quote"># nano  /etc/amnezia/amneziawg/awg0.conf</p>
+                <p>Добавим в него такое содержимое:</p>
+                <p class="config">[Interface]<br>     
+                PrivateKey = (SERVER_PRIVATE_KEY)<br> 
+                Address = 8.20.30.1/24<br> 
+                ListenPort = (PUBLIC_PORT)<br> 
+                PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o (name of default network interface) -j MASQUERADE<br> 
+                PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o (name of default network interface) -j MASQUERADE<br> 
+                Jc = 4<br> 
+                Jmin = 40<br> 
+                Jmax = 70<br> 
+                S1 = 68<br> 
+                S2 = 149<br> 
+                H1 = 1106457265<br> 
+                H2 = 249455488<br> 
+                H3 = 1209847463<br> 
+                H4 = 1646644382<br> 
+                <br> 
+                [Peer]<br>
+                PresharedKey = (PRESHARED_KEY)<br>
+                PublicKey = (CLIENT_PUBLIC_KEY)<br> 
+                AllowedIPs = 8.20.30.2/32</p>
+                <p>Для того, чтобы узнать основной интерфэйс выхода в сеть, нужно ввести команду:</p>
+                <p class="quote"># ip route | grep default | head -n 1 | awk '{print $5}'</p>
+                <p>Приватные ключи сервера и клиента мы сгенерировали ранее, их можно посмотреть в каталоге <b>/etc/amnezia/amneziawg/keys/</b> с помощью команды <b>cat</b> например:</p>
+                <p class="quote"># cat privatekey.server</p>
+                <p>Чтобы сохранить файл и закрыть его, нажмите Ctrl+X, Y, Enter.</p>
+            <h3 name="a1"><a name="27">4.5. Создадим файл конфигурации для клиента:</a></h3>
+                <p>Создадим каталог для файлов конфигураций в домашней директории пользователя, переходим в него:</p>
+                <p class="quote">$ mkdir ~/user_configs<br>
+                $ cd ~/user_configs</p>
+                <p>Cоздаем файл конфигурации клиента с помощью редактора <b>nano</b>:</p>
+                <p class="quote"># nano amneziawg.conf</p>
+                <p>Добавим в него такое содержимое:</p>
+                <p class="config">[Interface]<br>     
+                PrivateKey = (CLIENT_PRIVATE_KEY)<br>
+                Address = 8.20.30.2/32<br>
+                DNS = 1.1.1.1<br>
+                Jc = 4<br>
+                Jmin = 40<br>
+                Jmax = 70<br>
+                S1 = 68<br>
+                S2 = 149<br>
+                H1 = 1106457265<br>
+                H2 = 249455488<br>
+                H3 = 1209847463<br>
+                H4 = 1646644382<br>
+                <br>
+                [Peer]<br>
+                PresharedKey = (PRESHARED_KEY)<br>
+                PublicKey = (SERVER_PUBLIC_KEY)<br>
+                Endpoint = (PUBLIC_IP):(PUBLIC_PORT)<br>
+                AllowedIPs = 0.0.0.0/0<br>
+                PersistentKeepalive = 20</p>
+                <p>Чтобы сохранить файл и закрыть его, нажмите Ctrl+X, Y, Enter.</p>
+            <h3 name="a1"><a name="28">4.6 Запускаем AmneziaWG сервер:</a></h3>
+                <p>Для включения автоматического запуска демона AmneziaWG при загрузке системы выполните команду:</p>
+                <p class="quote"># systemctl enable awg-quick@awg0.service</p>
+                <p>После чего запустим службу:</p>
+                <p class="quote"># systemctl start awg-quick@awg0.service</p>
+                <p>Чтобы проверить, что сервис запустился и функционирует корректно, выполните команду:</p>
+                <p class="quote"># systemctl status awg-quick@awg0.service</p>
+
+        <h2 name="a1"><a name="29"></a>5. Настройка бэкапа центра сертификации по rsync</h2>
+            <h3 name="a1"><a name="30">5.1. Откроем файл скрипта в редакторе nano:</a></h3>
+                <p class="quote"># nano ~/server-backup.sh</p>
+            <h3 name="a1"><a name="31">5.2. Добавим в файл конфигурацию:</a></h3>
+                <p class="config">#!/bin/bash
+                    <br>
+                    rsync -aAXve "ssh -p 989" root@(AmneziaWG сервер ip):/etc/amnezia /home/(username)/netserver_backup/<br>
+                    rsync -aAXve "ssh -p 989" root@(AmneziaWG сервер ip):/home/(username)/user_configs /home/(username)/netserver_backup/<br>
+                    <br>
+                    #Чтобы восстановить систему из резервной копии, просто измените исходные и целевые пути в приведенной выше команде.<br>
+                    #rsync -aAXve "ssh -p 989" /home/(username)/netserver_backup/amnezia root@(AmneziaWG сервер ip):/etc/<br>
+                    #rsync -aAXve "ssh -p 989" /home/(username)/netserver_backup/user_configs root@(AmneziaWG сервер ip):/home/(username)/</p>
+                    <p>Чтобы сохранить файл и закрыть его, нажмите Ctrl+X, Y, Enter.</p>
+            <h3 name="a1"><a name="32">5.3. Добавим скрипт в планировщик задач Cron:</a></h3>
+                <p>В Linux есть встроенный механизм выполнения заданий по расписанию — планировщик задач Cron. Это универсальный инструмент, позволяющий создавать расписание для выполнения скриптов,<br>
+                    что значительно упрощает администрирование и позволяет перевести часть рутинных процессов в фоновый режим.<br>
+                    <br>
+                    Перед началом работы с Cron следует ознакомиться с синтаксисом файла, где создаются задачи.<br>
+                    <br>
+                    Добавляется задача в одну строку: * * * * * path/to/script. Основные параметры здесь — параметры времени, указанные в строке звёздочками.<br>
+                    На месте звёздочек указываются минуты, часы, числа месяца, номер месяца и номер дня недели, в которые нужно запускать данный скрипт.<br>
+                    <br>
+                    Например:<br>
+                    <br>
+                    30 * * * * path/to/script — скрипт запускается каждые 30 минут;<br>
+                    0 12 15 * * path/to/script — задание выполняется каждый месяц, 15 числа, в 12:00;<br>
+                    15 10 * * 2 path/to/script — задание выполняется по вторникам в 10:15.</p>
+                    <p>Теперь добавим наш скрипт в Cron:</p>
+                    <p class="quote"># sudo crontab -e</p>
+                    <p>Эта команда откроет файл, описывающий синтаксис добавления команд в cron, и сам список выполняемых заданий. Добавляем наш скрипт в этот файл после закомментированных строк:<br>
+                    <p class="config">…<br>
+                    # For more information see the manual pages of crontab(5) and cron(8)<br>
+                    # <br>
+                    # m h  dom mon dow   command<br>
+                    30 12 * * * /root/bin/backup-server1.sh</p>
+                    <p>Здесь мы указали следующее задание — выполнять резервное копирование каждый день в 12:30.</p>
+    </body>
+
+</html>
