@@ -134,13 +134,13 @@ function show_client_config () {
     echo "Config of $1:"
     echo 
     echo "*************************************************************"
-    cat /home/vpnserver/user_configs/$1/amneziawg.kz.conf
+    cat /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "*************************************************************"
     echo 
 }
 
 function show_client_config_for_telegram_bot () {
-    cat /home/vpnserver/user_configs/$1/amneziawg.kz.conf
+    cat /home/vpnserver/user_configs/$1/owlvpn.kz.conf
 }
 
 function generate_config () {
@@ -150,7 +150,7 @@ function generate_config () {
     local PUBCL=$(cat publickey.$1)
     local PRECL=$(cat presharedkey.$1)
     mkdir /home/vpnserver/user_configs/$1
-    touch /home/vpnserver/user_configs/$1/amneziawg.kz.conf
+    touch /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     local IP=$(ls -l /home/vpnserver/user_configs | wc -l)
     echo "[Peer]#$1" >> /etc/amnezia/amneziawg/awg0.conf
     echo "PresharedKey = $PRECL" >> /etc/amnezia/amneziawg/awg0.conf
@@ -192,26 +192,26 @@ function сopy_config_files () {
     local PRECL=$(cat presharedkey.$1)
     local IP=$(ls -l /home/vpnserver/user_configs | wc -l)
 
-    echo "[Interface]" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "PrivateKey = $PRIVCL" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "Address = 8.20.30.$IP/32" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "DNS = 1.1.1.1" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "Jc = 4" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "Jmin = 40" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "Jmax = 70" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "S1 = 68" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "S2 = 149" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "H1 = 1106457265" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "H2 = 249455488" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "H3 = 1209847463" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "H4 = 1646644382" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo -e \ >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "[Peer]" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "PresharedKey = $PRECL" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "PublicKey = $PUBSERV" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "Endpoint = 91.147.92.228:1984" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "AllowedIPs = 0.0.0.0/0" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
-    echo "PersistentKeepalive = 20" >> /home/vpnserver/user_configs/$1/amneziawg.kz.conf
+    echo "[Interface]" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "PrivateKey = $PRIVCL" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "Address = 8.20.30.$IP/32" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "DNS = 1.1.1.1" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "Jc = 4" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "Jmin = 40" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "Jmax = 70" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "S1 = 68" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "S2 = 149" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "H1 = 1106457265" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "H2 = 249455488" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "H3 = 1209847463" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "H4 = 1646644382" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo -e \ >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "[Peer]" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "PresharedKey = $PRECL" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "PublicKey = $PUBSERV" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "Endpoint = 91.147.92.228:1984" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "AllowedIPs = 0.0.0.0/0" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "PersistentKeepalive = 20" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
 }
 
 function delete_config_files () {
