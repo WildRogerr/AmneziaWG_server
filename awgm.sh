@@ -38,6 +38,7 @@ function main () {
         local CL_NAME="$_RESULT"
         generate_config "$CL_NAME"
         сopy_config_files "$CL_NAME"
+        echo
         echo "Done!"
         main
 
@@ -45,6 +46,7 @@ function main () {
         client_name_check
         local CL_NAME_CHECK1="$_RESULT"
         stop_config "$CL_NAME_CHECK1"
+        echo
         echo "Done!"
         main
 
@@ -52,6 +54,7 @@ function main () {
         client_name_check
         local CL_NAME_CHECK2="$_RESULT"
         start_config "$CL_NAME_CHECK2"
+        echo
         echo "Done!"
         main
         
@@ -59,6 +62,7 @@ function main () {
         client_name_check
         local CL_NAME_CHECK3="$_RESULT"
         delete_config_files "$CL_NAME_CHECK3"
+        echo
         echo "Done!"
         main
 
@@ -72,21 +76,25 @@ function main () {
 
     elif [[ "$REPLY" = "9" ]]; then
         systemctl reload awg-quick@awg0
+        echo
         echo "Done!"
         main
 
     elif [[ "$REPLY" = "10" ]]; then
         systemctl restart awg-quick@awg0.service
+        echo
         echo "Done!"
         main
 
     elif [[ "$REPLY" = "11" ]]; then
         systemctl stop awg-quick@awg0.service
+        echo
         echo "Done!"
         main
 
     elif [[ "$REPLY" = "12" ]]; then
         systemctl start awg-quick@awg0.service
+        echo
         echo "Done!"
         main
 
@@ -137,10 +145,6 @@ function show_client_config () {
     cat /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "*************************************************************"
     echo 
-}
-
-function show_client_config_for_telegram_bot () {
-    cat /home/vpnserver/user_configs/$1/owlvpn.kz.conf
 }
 
 function generate_config () {
