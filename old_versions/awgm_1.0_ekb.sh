@@ -37,7 +37,7 @@ function main () {
         client_name
         local CL_NAME="$_RESULT"
         generate_config "$CL_NAME"
-        сopy_config_files "$CL_NAME"
+        copy_config_files "$CL_NAME"
         echo "Done!"
         main
 
@@ -182,7 +182,7 @@ function start_config () {
     systemctl reload awg-quick@awg0
 }
 
-function сopy_config_files () {
+function copy_config_files () {
     local PUBSERV=$(cat publickey.server)
     local PRIVCL=$(cat privatekey.$1)
     local PRECL=$(cat presharedkey.$1)

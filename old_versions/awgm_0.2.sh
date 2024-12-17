@@ -80,7 +80,7 @@ delete_config () {
     fi
 }
 
-сopy_config_files () {
+copy_config_files () {
     local PUBSERV=$(cat publickey.server)
     local PRIVCL=$(cat privatekey.$1)
     local PRECL=$(cat presharedkey.$1)
@@ -148,7 +148,7 @@ enter_number () {
     elif [[ "$REPLY" = "2" ]]; then
         generate_config
         local CLIENT_NAME="$_RESULT"
-        сopy_config_files "$CLIENT_NAME"
+        copy_config_files "$CLIENT_NAME"
         echo "Done!"
 
     elif [[ "$REPLY" = "3" ]]; then
