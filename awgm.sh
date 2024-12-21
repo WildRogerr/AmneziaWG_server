@@ -15,10 +15,12 @@ function main () {
     echo "  6) Delete Client Config"
     echo "  7) Show AmneziaWG Status"
     echo "  8) Open AmneziaWG Config"
-    echo "  9) Reload AmneziaWG Config"
-    echo "  10) Restart AmneziaWG"
-    echo "  11) Stop AmneziaWG"
-    echo "  12) Start AmneziaWG"
+    echo "  9) Configs. Edit Encrypt Value"
+    echo "  10) Configs. Edit IP address"
+    echo "  11) Reload AmneziaWG Config"
+    echo "  12) Restart AmneziaWG"
+    echo "  13) Stop AmneziaWG"
+    echo "  14) Start AmneziaWG"
     echo "  0) Exit"
     echo
     read -p "Select an option [0-12]: "
@@ -75,24 +77,50 @@ function main () {
         main
 
     elif [[ "$REPLY" = "9" ]]; then
-        systemctl reload awg-quick@awg0
+        read -p "Enter new Jc value or 0 to return to main menu: "
+        if [[ "$REPLY" = "0" ]]; then
+            main
+        else
+            local JC="$REPLY"
+        read -p "Enter new Jmin value: "
+        local JMIN="$REPLY"
+        read -p "Enter new Jmax value: "
+        local JMAX="$REPLY"
+        edit_encrypt_value "$JC" "$JMIN" "$JMAX"
         echo
         echo "Done!"
         main
 
     elif [[ "$REPLY" = "10" ]]; then
-        systemctl restart awg-quick@awg0.service
+        read -p "Enter new IP address or 0 to return to main menu: "
+        if [[ "$REPLY" = "0" ]]; then
+            main
+        else
+            local IP="$REPLY"
+        edit_ip_address "$IP"
         echo
         echo "Done!"
         main
-
+    
     elif [[ "$REPLY" = "11" ]]; then
-        systemctl stop awg-quick@awg0.service
+        systemctl reload awg-quick@awg0
         echo
         echo "Done!"
         main
 
     elif [[ "$REPLY" = "12" ]]; then
+        systemctl restart awg-quick@awg0.service
+        echo
+        echo "Done!"
+        main
+
+    elif [[ "$REPLY" = "13" ]]; then
+        systemctl stop awg-quick@awg0.service
+        echo
+        echo "Done!"
+        main
+
+    elif [[ "$REPLY" = "14" ]]; then
         systemctl start awg-quick@awg0.service
         echo
         echo "Done!"
@@ -101,6 +129,7 @@ function main () {
     elif [[ "$REPLY" = "0" ]]; then
         echo
         echo Exit
+        return
 
     else 
         echo Enter Number: 0-12!
@@ -234,6 +263,16 @@ function delete_config_files () {
     else 
         delete_config_files
     fi
+}
+
+function edit_encrypt_value () {
+    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i sed -i "5{s/^\(.\{5\}\).*/\1$1/}" {} \;
+    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i sed -i "6{s/^\(.\{7\}\).*/\1$1/}" {} \;
+    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i sed -i "7{s/^\(.\{7\}\).*/\1$1/}" {} \;
+}
+
+function edit_ip_address () {
+    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i sed -i "3{s/^\(.\{10\}\).*/\1$1/}" {} \;
 }
 
 main
