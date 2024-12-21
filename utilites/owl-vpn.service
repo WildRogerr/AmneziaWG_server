@@ -1,0 +1,9 @@
+[Unit]
+Description=Start Owl VPN service.
+[Service]
+WorkingDirectory=/home/vpnserver/OwlVPN_bot
+ExecStart=/home/vpnserver/OwlVPN_bot/.venv/bin/python3 /home/vpnserver/OwlVPN_bot/owlvpnbot.py
+Restart=always
+Environment="PATH=/home/vpnserver/OwlVPN_bot/.venv/bin"
+[Install]
+WantedBy=multi-user.target
