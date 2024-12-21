@@ -264,7 +264,7 @@ function edit_encrypt_value () {
 }
 
 function edit_ip_address () {
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i sed -i "3{s/^\(.\{10\}\).*/\1$1/}" {} \;
+    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i sed -i "18{s/^\(.\{11\}\).*/\1$1/}" {} \;
 }
 
 main
