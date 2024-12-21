@@ -77,11 +77,7 @@ function main () {
         main
 
     elif [[ "$REPLY" = "9" ]]; then
-        read -p "Enter new Jc value or 0 to return to main menu: "
-        if [[ "$REPLY" = "0" ]]; then
-            main
-        else
-            local JC="$REPLY"
+        read -p "Enter new Jc value: "
         read -p "Enter new Jmin value: "
         local JMIN="$REPLY"
         read -p "Enter new Jmax value: "
@@ -92,11 +88,7 @@ function main () {
         main
 
     elif [[ "$REPLY" = "10" ]]; then
-        read -p "Enter new IP address or 0 to return to main menu: "
-        if [[ "$REPLY" = "0" ]]; then
-            main
-        else
-            local IP="$REPLY"
+        read -p "Enter new IP address: "
         edit_ip_address "$IP"
         echo
         echo "Done!"
