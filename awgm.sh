@@ -15,15 +15,15 @@ function main () {
     echo "  6) Delete Client Config"
     echo "  7) Show AmneziaWG Status"
     echo "  8) Open AmneziaWG Config"
-    echo "  9) Configs. Edit Encrypt Value"
-    echo "  10) Configs. Edit IP address"
-    echo "  11) Reload AmneziaWG Config"
+    echo "  9) Reload AmneziaWG Config"
+    echo "  10) Configs. Edit Encrypt Value"
+    echo "  11) Configs. Edit IP address"
     echo "  12) Restart AmneziaWG"
     echo "  13) Stop AmneziaWG"
     echo "  14) Start AmneziaWG"
     echo "  0) Exit"
     echo
-    read -p "Select an option [0-12]: "
+    read -p "Select an option [0-14]: "
 
 	if [[ "$REPLY" = "1" ]]; then
         ls -l /home/vpnserver/user_configs
@@ -77,28 +77,34 @@ function main () {
         main
 
     elif [[ "$REPLY" = "9" ]]; then
-        read -p "Enter new Jc value: "
-        read -p "Enter new Jmin value: "
-        local JMIN="$REPLY"
-        read -p "Enter new Jmax value: "
-        local JMAX="$REPLY"
-        edit_encrypt_value "$JC" "$JMIN" "$JMAX"
-        echo
-        echo "Done!"
-        main
-
-    elif [[ "$REPLY" = "10" ]]; then
-        read -p "Enter new IP address: "
-        edit_ip_address "$IP"
-        echo
-        echo "Done!"
-        main
-    
-    elif [[ "$REPLY" = "11" ]]; then
         systemctl reload awg-quick@awg0
         echo
         echo "Done!"
         main
+    
+    elif [[ "$REPLY" = "10" ]]; then
+        read -p "Enter new Jc value or enter 0 to return to main menu: " JC
+        if [[ "$JC" = "0" ]]; then
+            main
+        else
+            read -p "Enter new Jmin value: " JMIN
+            read -p "Enter new Jmax value: " JMAX
+            edit_encrypt_value "$JC" "$JMIN" "$JMAX"
+            echo
+            echo "Done!"
+            main
+        fi
+
+    elif [[ "$REPLY" = "11" ]]; then
+        read -p "Enter new IP address (IP address:Port) or enter 0 to return to main menu: " IP
+        if [[ "$IP" = "0" ]]; then
+            main
+        else
+            edit_ip_address "$IP"
+            echo
+            echo "Done!"
+            main
+        fi
 
     elif [[ "$REPLY" = "12" ]]; then
         systemctl restart awg-quick@awg0.service
@@ -124,7 +130,7 @@ function main () {
         return
 
     else 
-        echo Enter Number: 0-12!
+        echo Enter Number: 0-14!
 	    main
 
 	fi
@@ -258,13 +264,13 @@ function delete_config_files () {
 }
 
 function edit_encrypt_value () {
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i sed -i "5{s/^\(.\{5\}\).*/\1$1/}" {} \;
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i sed -i "6{s/^\(.\{7\}\).*/\1$1/}" {} \;
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i sed -i "7{s/^\(.\{7\}\).*/\1$1/}" {} \;
+    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "5{s/^\(.\{5\}\).*/\1$1/}" {} \;
+    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "6{s/^\(.\{7\}\).*/\1$2/}" {} \;
+    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "7{s/^\(.\{7\}\).*/\1$3/}" {} \;
 }
 
 function edit_ip_address () {
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i sed -i "18{s/^\(.\{11\}\).*/\1$1/}" {} \;
+    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "18{s/^\(.\{11\}\).*/\1$1/}" {} \;
 }
 
 main
