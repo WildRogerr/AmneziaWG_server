@@ -221,6 +221,7 @@ function copy_config_files () {
     local PUBSERV=$(cat publickey.server)
     local PRIVCL=$(cat privatekey.$1)
     local PRECL=$(cat presharedkey.$1)
+    local IPADDRESS=$(cat ipaddress)
     local IP=$(ls -l /home/vpnserver/user_configs | wc -l)
 
     echo "[Interface]" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
@@ -240,7 +241,7 @@ function copy_config_files () {
     echo "[Peer]" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "PresharedKey = $PRECL" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "PublicKey = $PUBSERV" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "Endpoint = 91.147.92.228:1984" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "Endpoint = $IPADDRESS" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "AllowedIPs = 0.0.0.0/0" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "PersistentKeepalive = 20" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
 }

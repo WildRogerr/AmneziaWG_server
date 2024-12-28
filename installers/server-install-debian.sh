@@ -34,8 +34,8 @@ echo LANG=C.UTF-8 >> /etc/default/locale
 echo LC_TYPE=en_US.UTF-8 >> /etc/default/locale
 locale-gen
 
-read -p "Enter name of new user: "
-_USERNAME=$REPLY
+read -p "Enter name of new user: " _USERNAME
+read -p "Enter (ip address:port) of vpn server: " _IPADDRESS
 
 bashrc () {
 useradd -m -g users -s /bin/bash $1
@@ -56,7 +56,6 @@ echo "export PATH=/home/$1/:"'$PATH' >> /home/$1/.bashrc
 }
 
 bashrc "$_USERNAME"
-
 
 sed -i 's/#Port 22/Port 989/' /etc/ssh/sshd_config
 sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
@@ -81,8 +80,8 @@ cd /etc/amnezia/amneziawg/keys
 
 config () {
 awg genkey | tee privatekey.server | awg pubkey > publickey.server
-awg genkey | tee privatekey.client | awg pubkey > publickey.client
-awg genpsk > presharedkey.client
+awg genkey | tee privatekey.client888 | awg pubkey > publickey.client888
+awg genpsk > presharedkey.client888
 touch /etc/amnezia/amneziawg/awg0.conf
 
 if [ -z "$DEV" ]; then
@@ -90,8 +89,8 @@ local DEV="$(ip route | grep default | head -n 1 | awk '{print $5}')"
 fi
 
 local PRIVSERV=$(cat privatekey.server)
-local PUBCL=$(cat publickey.client)
-local PRECL=$(cat presharedkey.client)
+local PUBCL=$(cat publickey.client888)
+local PRECL=$(cat presharedkey.client888)
 
 echo "[Interface]" >> /etc/amnezia/amneziawg/awg0.conf
 echo "PrivateKey = $PRIVSERV" >> /etc/amnezia/amneziawg/awg0.conf
@@ -109,7 +108,7 @@ echo "H2 = 249455488" >> /etc/amnezia/amneziawg/awg0.conf
 echo "H3 = 1209847463" >> /etc/amnezia/amneziawg/awg0.conf
 echo "H4 = 1646644382" >> /etc/amnezia/amneziawg/awg0.conf
 echo -e \ >> /etc/amnezia/amneziawg/awg0.conf
-echo "[Peer]#client" >> /etc/amnezia/amneziawg/awg0.conf
+echo "[Peer]#client888" >> /etc/amnezia/amneziawg/awg0.conf
 echo "PresharedKey = $PRECL" >> /etc/amnezia/amneziawg/awg0.conf
 echo "PublicKey = $PUBCL" >> /etc/amnezia/amneziawg/awg0.conf
 echo "AllowedIPs = 8.20.30.2/32" >> /etc/amnezia/amneziawg/awg0.conf
@@ -118,13 +117,13 @@ echo -e \ >> /etc/amnezia/amneziawg/awg0.conf
 
 workdirectories () {
 mkdir /home/$1/user_configs
-mkdir /home/$1/user_configs/client
+mkdir /home/$1/user_configs/client888
 mkdir /home/$1/config_files
 cp /etc/amnezia/amneziawg/awg0.conf /home/$1/config_files/
 
 local PUBSERV=$(cat publickey.server)
-local PRIVCL=$(cat privatekey.client)
-local PRECL=$(cat presharedkey.client)
+local PRIVCL=$(cat privatekey.client888)
+local PRECL=$(cat presharedkey.client888)
 
 touch /home/$1/config_files/client.conf
 
@@ -145,15 +144,17 @@ echo -e \ >> /home/$1/config_files/client.conf
 echo "[Peer]" >> /home/$1/config_files/client.conf
 echo "PresharedKey = $PRECL" >> /home/$1/config_files/client.conf
 echo "PublicKey = $PUBSERV" >> /home/$1/config_files/client.conf
-echo "Endpoint = 91.147.92.228:1984" >> /home/$1/config_files/client.conf
+echo "Endpoint = $2" >> /home/$1/config_files/client.conf
 echo "AllowedIPs = 0.0.0.0/0" >> /home/$1/config_files/client.conf
 echo "PersistentKeepalive = 20" >> /home/$1/config_files/client.conf
 
-cp /home/$1/config_files/client.conf /home/$1/user_configs/client/
+cp /home/$1/config_files/client.conf /home/$1/user_configs/client888/
+
+echo $2 >> /etc/amnezia/amneziawg/keys/ipaddress
 }
 
 config "$_USERNAME"
-workdirectories "$_USERNAME"
+workdirectories "$_USERNAME" "$_IPADDRESS"
 
 systemctl enable awg-quick@awg0.service
 systemctl start awg-quick@awg0.service
