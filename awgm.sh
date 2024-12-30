@@ -21,9 +21,12 @@ function main () {
     echo "  12) Restart AmneziaWG"
     echo "  13) Stop AmneziaWG"
     echo "  14) Start AmneziaWG"
+    echo "  15) Change Speed Limit For Users"
+    echo "  16) Speed Limit Off"
+    echo "  17) Speed Limit On"
     echo "  0) Exit"
     echo
-    read -p "Select an option [0-14]: "
+    read -p "Select an option [0-17]: "
 
 	if [[ "$REPLY" = "1" ]]; then
         ls -l /home/vpnserver/user_configs
@@ -42,6 +45,7 @@ function main () {
         copy_config_files "$CL_NAME"
         echo
         echo "Done!"
+        echo
         main
 
     elif [[ "$REPLY" = "4" ]]; then
@@ -50,6 +54,7 @@ function main () {
         stop_config "$CL_NAME_CHECK1"
         echo
         echo "Done!"
+        echo
         main
 
     elif [[ "$REPLY" = "5" ]]; then
@@ -58,6 +63,7 @@ function main () {
         start_config "$CL_NAME_CHECK2"
         echo
         echo "Done!"
+        echo
         main
         
     elif [[ "$REPLY" = "6" ]]; then
@@ -66,6 +72,7 @@ function main () {
         delete_config_files "$CL_NAME_CHECK3"
         echo
         echo "Done!"
+        echo
         main
 
     elif [[ "$REPLY" = "7" ]]; then
@@ -80,6 +87,7 @@ function main () {
         systemctl reload awg-quick@awg0
         echo
         echo "Done!"
+        echo
         main
     
     elif [[ "$REPLY" = "10" ]]; then
@@ -92,6 +100,7 @@ function main () {
             edit_encrypt_value "$JC" "$JMIN" "$JMAX"
             echo
             echo "Done!"
+            echo
             main
         fi
 
@@ -103,6 +112,7 @@ function main () {
             edit_ip_address "$IP"
             echo
             echo "Done!"
+            echo
             main
         fi
 
@@ -110,18 +120,48 @@ function main () {
         systemctl restart awg-quick@awg0.service
         echo
         echo "Done!"
+        echo
         main
 
     elif [[ "$REPLY" = "13" ]]; then
         systemctl stop awg-quick@awg0.service
         echo
         echo "Done!"
+        echo
         main
 
     elif [[ "$REPLY" = "14" ]]; then
         systemctl start awg-quick@awg0.service
         echo
         echo "Done!"
+        echo
+        main
+
+    elif [[ "$REPLY" = "15" ]]; then
+        local SPEED_LIMIT=$(cat /root/bin/speed_limit)
+        echo Current speed limit is ${SPEED_LIMIT}mbit.
+        read -p "Enter new speed limit: " _VALUE
+        change_speed_limit "$_VALUE"
+        tc qdisc del dev awg0 root
+        systemctl restart set-tc
+        echo
+        echo "Done!"
+        echo
+        main
+
+    elif [[ "$REPLY" = "16" ]]; then
+        systemctl stop set-tc
+        tc qdisc del dev awg0 root
+        echo
+        echo "Done!"
+        echo
+        main
+
+    elif [[ "$REPLY" = "17" ]]; then
+        systemctl start set-tc
+        echo
+        echo "Done!"
+        echo
         main
 
     elif [[ "$REPLY" = "0" ]]; then
@@ -130,7 +170,8 @@ function main () {
         return
 
     else 
-        echo Enter Number: 0-14!
+        echo Enter Number: 0-17!
+        echo
 	    main
 
 	fi
@@ -189,6 +230,9 @@ function generate_config () {
     echo "AllowedIPs = 8.20.30.$IP/32" >> /etc/amnezia/amneziawg/awg0.conf
     echo -e \ >> /etc/amnezia/amneziawg/awg0.conf
     systemctl reload awg-quick@awg0
+    echo "tc filter add dev awg0 protocol ip parent 1:0 prio 1 u32 match ip dst 8.20.30.$IP flowid 1:12" >> /root/bin/set_tc.sh
+    tc qdisc del dev awg0 root
+    systemctl restart set-tc
 }
 
 function stop_config () {
@@ -272,6 +316,11 @@ function edit_encrypt_value () {
 
 function edit_ip_address () {
     find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "18{s/^\(.\{11\}\).*/\1$1/}" {} \;
+}
+
+function change_speed_limit () {
+    > /root/bin/speed_limit
+    echo $1 >> /root/bin/speed_limit
 }
 
 main

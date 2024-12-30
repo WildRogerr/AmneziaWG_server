@@ -96,11 +96,20 @@
                     <li><a href="#27">Создадим файл конфигурации для клиента</a></li>
                     <li><a href="#28">Запускаем AmneziaWG сервер</a></li>
                 </ul>
-            <li><a href="#29">Настройка бэкапа центра сертификации по rsync</a></li>
+            <li><a href="#29">Включение ограничения трафика для пользователей AmneziaWG</a></li>
                 <ul>
-                    <li><a href="#30">Откроем файл скрипта в редакторе nano</a></li>
-                    <li><a href="#31">Добавим в файл конфигурацию</a></li>
-                    <li><a href="#32">Добавим скрипт в планировщик задач Cron</a></li>
+                    <li><a href="#30">Создаем директорию /root/bin/</a></li>
+                    <li><a href="#31">Откроем файл скрипта в редакторе nano</a></li>
+                    <li><a href="#32">Добавляем в файл конфигурацию</a></li>
+                    <li><a href="#33">Зададим права для файла</a></li>
+                    <li><a href="#34">Добавим скрипт в автозагрузку</a></li>
+                    <li><a href="#35">Добавим созданную службу в автозагрузку и запустим</a></li>
+                </ul>
+            <li><a href="#36">Настройка бэкапа центра сертификации по rsync</a></li>
+                <ul>
+                    <li><a href="#37">Откроем файл скрипта в редакторе nano</a></li>
+                    <li><a href="#38">Добавим в файл конфигурацию</a></li>
+                    <li><a href="#39">Добавим скрипт в планировщик задач Cron</a></li>
                 </ul>
         </ol>
 
@@ -274,10 +283,47 @@
                 <p>Чтобы проверить, что сервис запустился и функционирует корректно, выполните команду:</p>
                 <p class="quote"># systemctl status awg-quick@awg0.service</p>
 
-        <h2 name="a1"><a name="29"></a>5. Настройка бэкапа центра сертификации по rsync</h2>
-            <h3 name="a1"><a name="30">5.1. Откроем файл скрипта в редакторе nano:</a></h3>
+        <h2 name="a1"><a name="29"></a>5. Включение ограничения трафика для пользователей AmneziaWG</h2>
+            <h3 name="a1"><a name="30">5.1. Создаем директорию /root/bin/:</a></h3>
+                <p class="quote"># mkdir /root/bin/</p>
+            <h3 name="a1"><a name="31">5.2. Откроем файл скрипта в редакторе nano:</a></h3>
+                <p class="quote"># nano /root/bin/set_tc.sh</p>
+            <h3 name="a1"><a name="32">5.3. Добавим в файл конфигурацию:</a></h3>
+                <p class="config">#!/bin/sh<br>
+                <br>
+                # Установка очереди и ограничения скорости на awg0<br>
+                <br>
+                tc qdisc add dev awg0 root handle 1: htb default 12 r2q 256<br>
+                tc class add dev awg0 parent 1: classid 1:12 htb rate 30mbit ceil 30mbit<br>
+                <br> 
+                # users<br>
+                <br>
+                tc filter add dev awg0 protocol ip parent 1:0 prio 1 u32 match ip dst 8.20.30.2 flowid 1:12</p>
+                <p>Чтобы сохранить файл и закрыть его, нажмите Ctrl+X, Y, Enter.</p>
+            <h3 name="a1"><a name="33">5.4. Зададим права для файла:</a></h3>
+                <p class="quote"># chmod 755 /root/bin/set_tc.sh</p>
+            <h3 name="a1"><a name="34">5.5. Добавим скрипт в автозагрузку:</a></h3>
+                <p>Для этого создадим файл:</p>
+                <p class="quote"># nano /etc/systemd/system/set-tc.service</p>
+                <p>Добавьте в него следующие данные:</p>
+                <p class="config">[Unit]<br>
+                Description=Set TC rules on awg0<br>
+                After=network.target<br>
+                [Service]<br>
+                Type=oneshot<br>
+                ExecStart=/root/bin/set_tc.sh<br>
+                RemainAfterExit=true<br>
+                [Install]<br>
+                WantedBy=multi-user.target</p>
+                <p>Чтобы сохранить файл и закрыть его, нажмите Ctrl+X, Y, Enter.</p>
+            <h3 name="a1"><a name="35">5.6. Добавим созданную службу в автозагрузку и запустим:</a></h3>
+                <p class="quote"># systemctl enable set-tc</p>
+                <p class="quote"># systemctl start set-tc</p>
+        
+        <h2 name="a1"><a name="36"></a>6. Настройка бэкапа центра сертификации по rsync</h2>
+            <h3 name="a1"><a name="37">6.1. Откроем файл скрипта в редакторе nano:</a></h3>
                 <p class="quote"># nano ~/server-backup.sh</p>
-            <h3 name="a1"><a name="31">5.2. Добавим в файл конфигурацию:</a></h3>
+            <h3 name="a1"><a name="38">6.2. Добавим в файл конфигурацию:</a></h3>
                 <p class="config">#!/bin/bash
                     <br>
                     rsync -aAXve "ssh -p 989" root@(AmneziaWG сервер ip):/etc/amnezia /home/(username)/netserver_backup/<br>
@@ -287,7 +333,7 @@
                     #rsync -aAXve "ssh -p 989" /home/(username)/netserver_backup/amnezia root@(AmneziaWG сервер ip):/etc/<br>
                     #rsync -aAXve "ssh -p 989" /home/(username)/netserver_backup/user_configs root@(AmneziaWG сервер ip):/home/(username)/</p>
                     <p>Чтобы сохранить файл и закрыть его, нажмите Ctrl+X, Y, Enter.</p>
-            <h3 name="a1"><a name="32">5.3. Добавим скрипт в планировщик задач Cron:</a></h3>
+            <h3 name="a1"><a name="39">6.3. Добавим скрипт в планировщик задач Cron:</a></h3>
                 <p>В Linux есть встроенный механизм выполнения заданий по расписанию — планировщик задач Cron. Это универсальный инструмент, позволяющий создавать расписание для выполнения скриптов,<br>
                     что значительно упрощает администрирование и позволяет перевести часть рутинных процессов в фоновый режим.<br>
                     <br>

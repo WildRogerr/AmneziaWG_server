@@ -159,6 +159,40 @@ workdirectories "$_USERNAME" "$_IPADDRESS"
 systemctl enable awg-quick@awg0.service
 systemctl start awg-quick@awg0.service
 
+mkdir /root/bin/
+touch /root/bin/set_tc.sh
+touch /root/bin/speed_limit
+
+echo "30" >> /root/bin/speed_limit
+
+echo "#!/bin/sh" >> /root/bin/set_tc.sh
+echo -e \ >> /root/bin/set_tc.sh 
+echo '_SPEED_LIMIT=$(cat /root/bin/speed_limit)' >> /root/bin/set_tc.sh
+echo -e \ >> /root/bin/set_tc.sh
+echo 'tc qdisc add dev awg0 root handle 1: htb default 12 r2q 256' >> /root/bin/set_tc.sh
+echo 'tc class add dev awg0 parent 1: classid 1:12 htb rate "${_SPEED_LIMIT}"mbit ceil "${_SPEED_LIMIT}"mbit'
+echo -e \ >> /root/bin/set_tc.sh
+echo "# users" >> /root/bin/set_tc.sh
+echo -e \ >> /root/bin/set_tc.sh 
+echo 'tc filter add dev awg0 protocol ip parent 1:0 prio 1 u32 match ip dst 8.20.30.2 flowid 1:12' >> /root/bin/set_tc.sh
+
+chmod 755 /root/bin/set_tc.sh
+
+touch /etc/systemd/system/set-tc.service
+
+echo "[Unit]" >> /etc/systemd/system/set-tc.service
+echo "Description=Set TC rules on awg0" >> /etc/systemd/system/set-tc.service
+echo "After=network.target" >> /etc/systemd/system/set-tc.service
+echo "[Service]" >> /etc/systemd/system/set-tc.service
+echo "Type=oneshot" >> /etc/systemd/system/set-tc.service
+echo "ExecStart=/root/bin/set_tc.sh" >> /etc/systemd/system/set-tc.service
+echo "RemainAfterExit=true" >> /etc/systemd/system/set-tc.service
+echo "[Install]" >> /etc/systemd/system/set-tc.service
+echo "WantedBy=multi-user.target" >> /etc/systemd/system/set-tc.service
+
+systemctl enable set-tc
+systemctl start set-tc
+
 crontab_install () {
     echo Are you need awg reboot rule?
     read -p "enter "yes" or "no": "
