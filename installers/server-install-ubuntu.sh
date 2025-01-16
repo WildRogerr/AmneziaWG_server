@@ -20,8 +20,8 @@ sed -i -e '1 s/^/127.0.0.1	netserver\n/;' /etc/hosts
 
 echo "blacklist pcspkr" > /etc/modprobe.d/blacklist-pcspkr.conf
 
-apt-get --force-yes -y full-upgrade
-apt update && apt install --force-yes -y sudo locales net-tools man-db curl wget git make nano vim htop iftop bmon vnstat mc texinfo ssh iptables networkd-dispatcher tcpdump fail2ban zip rsync screen links neofetch
+apt-get -y full-upgrade
+apt update && apt install -y sudo locales net-tools man-db curl wget git make nano vim htop iftop bmon vnstat mc texinfo ssh iptables networkd-dispatcher tcpdump fail2ban zip rsync screen links neofetch
 systemctl start fail2ban
 systemctl enable fail2ban
 
@@ -71,7 +71,7 @@ sysctl -p
 sed -i "deb-src/^#//" /etc/apt/sources.list
 # for Ubuntu 24 # sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
 apt-get update
-apt install --force-yes -y software-properties-common python3-launchpadlib gnupg2 linux-headers-$(uname -r)
+apt install -y software-properties-common python3-launchpadlib gnupg2 linux-headers-$(uname -r)
 add-apt-repository ppa:amnezia/ppa
 apt-get install -y amneziawg
 

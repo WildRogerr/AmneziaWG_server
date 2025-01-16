@@ -20,8 +20,8 @@ sed -i -e '1 s/^/127.0.0.1	netserver\n/;' /etc/hosts
 
 echo "blacklist pcspkr" > /etc/modprobe.d/blacklist-pcspkr.conf
 
-apt-get --force-yes -y full-upgrade
-apt update && apt install --force-yes -y sudo locales net-tools man-db curl wget git make nano vim htop iftop bmon vnstat mc texinfo ssh iptables networkd-dispatcher tcpdump fail2ban zip rsync screen links neofetch
+apt-get -y full-upgrade
+apt update && apt install -y sudo locales net-tools man-db curl wget git make nano vim htop iftop bmon vnstat mc texinfo ssh iptables networkd-dispatcher tcpdump fail2ban zip rsync screen links neofetch
 systemctl start fail2ban
 systemctl enable fail2ban
 
@@ -68,12 +68,12 @@ systemctl enable ssh.service
 sed -i "s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/" /etc/sysctl.conf
 sysctl -p
 
-apt install --force-yes -y software-properties-common python3-launchpadlib gnupg2 linux-headers-$(uname -r)
+apt install -y software-properties-common python3-launchpadlib gnupg2 linux-headers-$(uname -r)
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 57290828
 echo "deb https://ppa.launchpadcontent.net/amnezia/ppa/ubuntu focal main" | sudo tee -a /etc/apt/sources.list
 echo "deb-src https://ppa.launchpadcontent.net/amnezia/ppa/ubuntu focal main" | sudo tee -a /etc/apt/sources.list
 apt-get update
-apt-get install --force-yes -y amneziawg
+apt-get install -y amneziawg
 
 mkdir /etc/amnezia/amneziawg/keys
 cd /etc/amnezia/amneziawg/keys
