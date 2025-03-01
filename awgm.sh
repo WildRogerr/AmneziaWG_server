@@ -3,178 +3,162 @@
 cd /etc/amnezia/amneziawg/keys
 
 function main () {
-    echo "-------------------------------------------------------------"
-    echo "AWG Manager"
-    echo "-------------------------------------------------------------"
-    echo
-    echo "  1) Clients List"
-    echo "  2) Show Client Config"
-    echo "  3) Generate Client Config"
-    echo "  4) Stop Client Config"
-    echo "  5) Start Client Config"
-    echo "  6) Delete Client Config"
-    echo "  7) Show AmneziaWG Status"
-    echo "  8) Open AmneziaWG Config"
-    echo "  9) Reload AmneziaWG Config"
-    echo "  10) Configs. Edit Encrypt Value"
-    echo "  11) Configs. Edit IP address"
-    echo "  12) Restart AmneziaWG"
-    echo "  13) Stop AmneziaWG"
-    echo "  14) Start AmneziaWG"
-    echo "  15) Change Speed Limit For Users"
-    echo "  16) Speed Limit Off"
-    echo "  17) Speed Limit On"
-    echo "  0) Exit"
-    echo
-    read -p "Select an option [0-17]: "
+    while true
+    do
+        echo "-------------------------------------------------------------"
+        echo "AWG Manager"
+        echo "-------------------------------------------------------------"
+        echo
+        echo "  1) Clients List"
+        echo "  2) Show Client Config"
+        echo "  3) Generate Client Config"
+        echo "  4) Stop Client Config"
+        echo "  5) Start Client Config"
+        echo "  6) Delete Client Config"
+        echo "  7) Show AmneziaWG Status"
+        echo "  8) Open AmneziaWG Config"
+        echo "  9) Reload AmneziaWG Config"
+        echo "  10) Configs. Edit Encrypt Value"
+        echo "  11) Configs. Edit IP address"
+        echo "  12) Restart AmneziaWG"
+        echo "  13) Stop AmneziaWG"
+        echo "  14) Start AmneziaWG"
+        echo "  15) Change Speed Limit For Users"
+        echo "  16) Speed Limit Off"
+        echo "  17) Speed Limit On"
+        echo "  0) Exit"
+        echo
+        read -p "Select an option [0-17]: "
 
-	if [[ "$REPLY" = "1" ]]; then
-        ls -l /home/vpnserver/user_configs
-        main
+        if [[ "$REPLY" = "1" ]]; then
+            ls -l /home/vpnserver/user_configs
 
-    elif [[ "$REPLY" = "2" ]]; then
-        client_name_check
-        local CL_NAME_CHECK="$_RESULT"
-        show_client_config "$CL_NAME_CHECK"
-        main
+        elif [[ "$REPLY" = "2" ]]; then
+            client_name_check
+            local CL_NAME_CHECK="$_RESULT"
+            show_client_config "$CL_NAME_CHECK"
 
-    elif [[ "$REPLY" = "3" ]]; then
-        client_name
-        local CL_NAME="$_RESULT"
-        generate_config "$CL_NAME"
-        copy_config_files "$CL_NAME"
-        echo
-        echo "Done!"
-        echo
-        main
-
-    elif [[ "$REPLY" = "4" ]]; then
-        client_name_check
-        local CL_NAME_CHECK1="$_RESULT"
-        stop_config "$CL_NAME_CHECK1"
-        echo
-        echo "Done!"
-        echo
-        main
-
-    elif [[ "$REPLY" = "5" ]]; then
-        client_name_check
-        local CL_NAME_CHECK2="$_RESULT"
-        start_config "$CL_NAME_CHECK2"
-        echo
-        echo "Done!"
-        echo
-        main
-        
-    elif [[ "$REPLY" = "6" ]]; then
-        client_name_check
-        local CL_NAME_CHECK3="$_RESULT"
-        delete_config_files "$CL_NAME_CHECK3"
-        echo
-        echo "Done!"
-        echo
-        main
-
-    elif [[ "$REPLY" = "7" ]]; then
-        systemctl status awg-quick@awg0.service
-        main
-
-    elif [[ "$REPLY" = "8" ]]; then
-        nano /etc/amnezia/amneziawg/awg0.conf
-        main
-
-    elif [[ "$REPLY" = "9" ]]; then
-        systemctl reload awg-quick@awg0
-        echo
-        echo "Done!"
-        echo
-        main
-    
-    elif [[ "$REPLY" = "10" ]]; then
-        read -p "Enter new Jc value or enter 0 to return to main menu: " JC
-        if [[ "$JC" = "0" ]]; then
-            main
-        else
-            read -p "Enter new Jmin value: " JMIN
-            read -p "Enter new Jmax value: " JMAX
-            edit_encrypt_value "$JC" "$JMIN" "$JMAX"
+        elif [[ "$REPLY" = "3" ]]; then
+            client_name
+            local CL_NAME="$_RESULT"
+            generate_config "$CL_NAME"
+            copy_config_files "$CL_NAME"
             echo
             echo "Done!"
             echo
-            main
-        fi
 
-    elif [[ "$REPLY" = "11" ]]; then
-        read -p "Enter new IP address (IP address:Port) or enter 0 to return to main menu: " IP
-        if [[ "$IP" = "0" ]]; then
-            main
-        else
-            edit_ip_address "$IP"
+        elif [[ "$REPLY" = "4" ]]; then
+            client_name_check
+            local CL_NAME_CHECK1="$_RESULT"
+            stop_config "$CL_NAME_CHECK1"
             echo
             echo "Done!"
             echo
-            main
+
+        elif [[ "$REPLY" = "5" ]]; then
+            client_name_check
+            local CL_NAME_CHECK2="$_RESULT"
+            start_config "$CL_NAME_CHECK2"
+            echo
+            echo "Done!"
+            echo
+            
+        elif [[ "$REPLY" = "6" ]]; then
+            client_name_check
+            local CL_NAME_CHECK3="$_RESULT"
+            delete_config_files "$CL_NAME_CHECK3"
+            echo
+            echo "Done!"
+            echo
+
+        elif [[ "$REPLY" = "7" ]]; then
+            systemctl status awg-quick@awg0.service
+
+        elif [[ "$REPLY" = "8" ]]; then
+            nano /etc/amnezia/amneziawg/awg0.conf
+
+        elif [[ "$REPLY" = "9" ]]; then
+            systemctl reload awg-quick@awg0
+            echo
+            echo "Done!"
+            echo
+
+        elif [[ "$REPLY" = "10" ]]; then
+            read -p "Enter new Jc value or enter 0 to return to main menu: " JC
+            if [[ "$JC" = "0" ]]; then
+                :
+            else
+                read -p "Enter new Jmin value: " JMIN
+                read -p "Enter new Jmax value: " JMAX
+                edit_encrypt_value "$JC" "$JMIN" "$JMAX"
+                echo
+                echo "Done!"
+                echo
+            fi
+
+        elif [[ "$REPLY" = "11" ]]; then
+            read -p "Enter new IP address (IP address:Port) or enter 0 to return to main menu: " IP
+            if [[ "$IP" = "0" ]]; then
+                :
+            else
+                edit_ip_address "$IP"
+                echo
+                echo "Done!"
+                echo
+            fi
+
+        elif [[ "$REPLY" = "12" ]]; then
+            systemctl restart awg-quick@awg0.service
+            echo
+            echo "Done!"
+            echo
+
+        elif [[ "$REPLY" = "13" ]]; then
+            systemctl stop awg-quick@awg0.service
+            echo
+            echo "Done!"
+            echo
+
+        elif [[ "$REPLY" = "14" ]]; then
+            systemctl start awg-quick@awg0.service
+            echo
+            echo "Done!"
+            echo
+
+        elif [[ "$REPLY" = "15" ]]; then
+            local SPEED_LIMIT=$(cat /root/bin/speed_limit)
+            echo Current speed limit is ${SPEED_LIMIT}mbit.
+            read -p "Enter new speed limit: " _VALUE
+            change_speed_limit "$_VALUE"
+            tc qdisc del dev awg0 root
+            systemctl restart set-tc
+            echo
+            echo "Done!"
+            echo
+
+        elif [[ "$REPLY" = "16" ]]; then
+            systemctl stop set-tc
+            tc qdisc del dev awg0 root
+            echo
+            echo "Done!"
+            echo
+
+        elif [[ "$REPLY" = "17" ]]; then
+            systemctl start set-tc
+            echo
+            echo "Done!"
+            echo
+
+        elif [[ "$REPLY" = "0" ]]; then
+            echo
+            echo Exit
+            break
+
+        else 
+            echo Enter Number: 0-17!
+            echo
         fi
-
-    elif [[ "$REPLY" = "12" ]]; then
-        systemctl restart awg-quick@awg0.service
-        echo
-        echo "Done!"
-        echo
-        main
-
-    elif [[ "$REPLY" = "13" ]]; then
-        systemctl stop awg-quick@awg0.service
-        echo
-        echo "Done!"
-        echo
-        main
-
-    elif [[ "$REPLY" = "14" ]]; then
-        systemctl start awg-quick@awg0.service
-        echo
-        echo "Done!"
-        echo
-        main
-
-    elif [[ "$REPLY" = "15" ]]; then
-        local SPEED_LIMIT=$(cat /root/bin/speed_limit)
-        echo Current speed limit is ${SPEED_LIMIT}mbit.
-        read -p "Enter new speed limit: " _VALUE
-        change_speed_limit "$_VALUE"
-        tc qdisc del dev awg0 root
-        systemctl restart set-tc
-        echo
-        echo "Done!"
-        echo
-        main
-
-    elif [[ "$REPLY" = "16" ]]; then
-        systemctl stop set-tc
-        tc qdisc del dev awg0 root
-        echo
-        echo "Done!"
-        echo
-        main
-
-    elif [[ "$REPLY" = "17" ]]; then
-        systemctl start set-tc
-        echo
-        echo "Done!"
-        echo
-        main
-
-    elif [[ "$REPLY" = "0" ]]; then
-        echo
-        echo Exit
-        return
-
-    else 
-        echo Enter Number: 0-17!
-        echo
-	    main
-
-	fi
+    done
 }
 
 function client_name () {
