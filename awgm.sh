@@ -138,13 +138,15 @@ function main () {
 
         elif [[ "$REPLY" = "16" ]]; then
             systemctl stop set-tc
+			systemctl disable set-tc
             tc qdisc del dev awg0 root
             echo
             echo "Done!"
             echo
 
         elif [[ "$REPLY" = "17" ]]; then
-            systemctl start set-tc
+            systemctl enable set-tc
+			systemctl start set-tc
             echo
             echo "Done!"
             echo
