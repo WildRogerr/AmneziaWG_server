@@ -170,7 +170,7 @@ echo -e \ >> /root/bin/set_tc.sh
 echo '_SPEED_LIMIT=$(cat /root/bin/speed_limit)' >> /root/bin/set_tc.sh
 echo -e \ >> /root/bin/set_tc.sh
 echo 'tc qdisc add dev awg0 root handle 1: htb default 12 r2q 256' >> /root/bin/set_tc.sh
-echo 'tc class add dev awg0 parent 1: classid 1:12 htb rate "${_SPEED_LIMIT}"mbit ceil "${_SPEED_LIMIT}"mbit'
+echo 'tc class add dev awg0 parent 1: classid 1:12 htb rate "${_SPEED_LIMIT}"mbit ceil "${_SPEED_LIMIT}"mbit' >> /root/bin/set_tc.sh
 echo -e \ >> /root/bin/set_tc.sh
 echo "# users" >> /root/bin/set_tc.sh
 echo -e \ >> /root/bin/set_tc.sh 

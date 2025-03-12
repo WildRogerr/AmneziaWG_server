@@ -28,9 +28,10 @@ function main () {
         echo "  17) Speed Limit On"
         echo "  18) Owl VPN Off"
         echo "  19) Owl VPN On"
+        echo "  20) Show Owl VPN Status"
         echo "  0) Exit"
         echo
-        read -p "Select an option [0-19]: "
+        read -p "Select an option [0-20]: "
 
         if [[ "$REPLY" = "1" ]]; then
             ls -l /home/vpnserver/user_configs
@@ -165,13 +166,19 @@ function main () {
             echo "Done!"
             echo
 
+        elif [[ "$REPLY" = "20" ]]; then
+            systemctl status owl-vpn
+            echo
+            echo "Done!"
+            echo
+
         elif [[ "$REPLY" = "0" ]]; then
             echo
             echo Exit
             break
 
         else 
-            echo Enter Number: 0-19!
+            echo Enter Number: 0-20!
             echo
         fi
     done
