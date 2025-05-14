@@ -216,9 +216,6 @@ function generate_config () {
     echo "AllowedIPs = 8.20.30.$IP/32" >> /etc/amnezia/amneziawg/awg0.conf
     echo -e \ >> /etc/amnezia/amneziawg/awg0.conf
     systemctl reload awg-quick@awg0
-    echo "tc filter add dev awg0 protocol ip parent 1:0 prio 1 u32 match ip dst 8.20.30.$IP flowid 1:12" >> /root/bin/set_tc.sh
-    tc qdisc del dev awg0 root
-    systemctl restart set-tc
 }
 
 function stop_config () {
