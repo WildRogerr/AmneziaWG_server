@@ -294,11 +294,12 @@
                 # Установка очереди и ограничения скорости на awg0<br>
                 <br>
                 tc qdisc add dev awg0 root handle 1: htb default 12 r2q 256<br>
-                tc class add dev awg0 parent 1: classid 1:12 htb rate 30mbit ceil 30mbit<br>
+                tc class add dev awg0 parent 1: classid 1:1 htb rate 1000mbit ceil 1000mbit<br>
                 <br> 
                 # users<br>
                 <br>
-                tc filter add dev awg0 protocol ip parent 1:0 prio 1 u32 match ip dst 8.20.30.2 flowid 1:12</p>
+                tc class add dev awg0 parent 1:1 classid 1:2 htb rate "${_SPEED_LIMIT}"mbit ceil "${_SPEED_LIMIT}"mbit<br>
+                tc filter add dev awg0 protocol ip parent 1:0 prio 1 u32 match ip dst 8.20.30.2 flowid 1:2</p>
                 <p>Чтобы сохранить файл и закрыть его, нажмите Ctrl+X, Y, Enter.</p>
             <h3 name="a1"><a name="33">5.4. Зададим права для файла:</a></h3>
                 <p class="quote"># chmod 755 /root/bin/set_tc.sh</p>
