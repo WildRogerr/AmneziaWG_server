@@ -90,7 +90,9 @@ function main () {
             else
                 read -p "Enter new Jmin value: " JMIN
                 read -p "Enter new Jmax value: " JMAX
-                edit_encrypt_value "$JC" "$JMIN" "$JMAX"
+                read -p "Enter new S1 value: " S1
+                read -p "Enter new S2 value: " S2
+                edit_encrypt_value "$JC" "$JMIN" "$JMAX" "$S1" "$S2"
                 echo
                 echo "Done!"
                 echo
@@ -295,6 +297,8 @@ function edit_encrypt_value () {
     find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "5{s/^\(.\{5\}\).*/\1$1/}" {} \;
     find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "6{s/^\(.\{7\}\).*/\1$2/}" {} \;
     find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "7{s/^\(.\{7\}\).*/\1$3/}" {} \;
+    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "8{s/^\(.\{5\}\).*/\1$4/}" {} \;
+    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "9{s/^\(.\{5\}\).*/\1$5/}" {} \;
 }
 
 function edit_ip_address () {
