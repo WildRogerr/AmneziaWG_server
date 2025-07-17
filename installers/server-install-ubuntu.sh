@@ -145,7 +145,7 @@ echo "[Peer]" >> /home/$1/config_files/client.conf
 echo "PresharedKey = $PRECL" >> /home/$1/config_files/client.conf
 echo "PublicKey = $PUBSERV" >> /home/$1/config_files/client.conf
 echo "Endpoint = $2" >> /home/$1/config_files/client.conf
-echo "AllowedIPs = 0.0.0.0/0" >> /home/$1/config_files/client.conf
+echo "AllowedIPs = 0.0.0.0/0, ::/0" >> /home/$1/config_files/client.conf
 echo "PersistentKeepalive = 20" >> /home/$1/config_files/client.conf
 
 cp /home/$1/config_files/client.conf /home/$1/user_configs/client888/
