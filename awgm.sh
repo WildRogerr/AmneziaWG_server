@@ -257,11 +257,11 @@ function copy_config_files () {
     echo "PrivateKey = $PRIVCL" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "Address = 8.20.30.$IP/32" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "DNS = 1.1.1.1" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "Jc = 4" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "Jc = 5" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "Jmin = 40" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "Jmax = 70" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "S1 = 68" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "S2 = 149" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "S1 = 8" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    echo "S2 = 5" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "H1 = 1106457265" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "H2 = 249455488" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "H3 = 1209847463" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
