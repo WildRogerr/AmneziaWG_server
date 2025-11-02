@@ -303,6 +303,7 @@ function edit_encrypt_value () {
 
 function edit_ip_address () {
     find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "18{s/^\(.\{11\}\).*/\1$1/}" {} \;
+    cat $1 > /etc/amnezia/amneziawg/keys/ipaddress
 }
 
 function change_speed_limit () {
