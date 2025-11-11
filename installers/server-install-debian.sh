@@ -171,7 +171,7 @@ echo '_SPEED_LIMIT=$(cat /root/bin/speed_limit)' >> /root/bin/set_tc.sh
 echo '_QUANTUM=$(( ${_SPEED_LIMIT} * 125000 / 200 ))' >> /root/bin/set_tc.sh
 echo -e \ >> /root/bin/set_tc.sh
 echo 'tc qdisc add dev awg0 root handle 1: htb default 12 r2q 256' >> /root/bin/set_tc.sh
-echo 'tc class add dev awg0 parent 1: classid 1:1 htb rate 1000mbit ceil 1000mbit  quantum 40000' >> /root/bin/set_tc.sh
+echo 'tc class add dev awg0 parent 1: classid 1:1 htb rate 1000mbit ceil 1000mbit quantum 40000' >> /root/bin/set_tc.sh
 echo -e \ >> /root/bin/set_tc.sh
 echo "# users" >> /root/bin/set_tc.sh
 echo -e \ >> /root/bin/set_tc.sh 
