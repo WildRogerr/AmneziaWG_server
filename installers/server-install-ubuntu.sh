@@ -168,18 +168,19 @@ echo "30" >> /root/bin/speed_limit
 echo "#!/bin/bash" >> /root/bin/set_tc.sh
 echo -e \ >> /root/bin/set_tc.sh 
 echo '_SPEED_LIMIT=$(cat /root/bin/speed_limit)' >> /root/bin/set_tc.sh
+echo '_QUANTUM=$(( ${_SPEED_LIMIT} * 125000 / 200 ))' >> /root/bin/set_tc.sh
 echo -e \ >> /root/bin/set_tc.sh
 echo 'tc qdisc add dev awg0 root handle 1: htb default 12 r2q 256' >> /root/bin/set_tc.sh
-echo 'tc class add dev awg0 parent 1: classid 1:1 htb rate 1000mbit ceil 1000mbit' >> /root/bin/set_tc.sh
+echo 'tc class add dev awg0 parent 1: classid 1:1 htb rate 1000mbit ceil 1000mbit  quantum 40000' >> /root/bin/set_tc.sh
 echo -e \ >> /root/bin/set_tc.sh
 echo "# users" >> /root/bin/set_tc.sh
 echo -e \ >> /root/bin/set_tc.sh 
 
-for i in {2..255}; do
+for i in {2..253}; do
     IP="8.20.30.$i"
     CLASSID="1:$i"
     
-    echo 'tc class add dev awg0 parent 1:1 classid '"$CLASSID"' htb rate "${_SPEED_LIMIT}"mbit ceil "${_SPEED_LIMIT}"mbit' >> /root/bin/set_tc.sh
+    echo 'tc class add dev awg0 parent 1:1 classid '"$CLASSID"' htb rate "${_SPEED_LIMIT}"mbit ceil "${_SPEED_LIMIT}"mbit quantum ${_QUANTUM}' >> /root/bin/set_tc.sh
     echo "tc filter add dev awg0 protocol ip parent 1:0 prio 1 u32 match ip dst $IP flowid $CLASSID" >> /root/bin/set_tc.sh
 done
 
