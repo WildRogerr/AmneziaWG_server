@@ -226,8 +226,8 @@
                 PrivateKey = (SERVER_PRIVATE_KEY)<br> 
                 Address = 8.20.30.1/24<br> 
                 ListenPort = (PUBLIC_PORT)<br> 
-                PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o (name of default network interface) -j MASQUERADE<br> 
-                PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o (name of default network interface) -j MASQUERADE<br> 
+                PostUp = iptables -A FORWARD -i %i -o %i -s 8.20.30.0/24 -d 8.20.30.0/24 -j DROP; iptables -A FORWARD -i %i -o $DEV -j ACCEPT; iptables -A FORWARD -i $DEV -o %i -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -t nat -A POSTROUTING -s 8.20.30.0/24 -o $DEV -j MASQUERADE<br> 
+                PostDown = iptables -D FORWARD -i %i -o %i -s 8.20.30.0/24 -d 8.20.30.0/24 -j DROP; iptables -D FORWARD -i %i -o $DEV -j ACCEPT; iptables -D FORWARD -i $DEV -o %i -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -t nat -D POSTROUTING -s 8.20.30.0/24 -o $DEV -j MASQUERADE<br> 
                 Jc = 5<br> 
                 Jmin = 40<br> 
                 Jmax = 70<br> 

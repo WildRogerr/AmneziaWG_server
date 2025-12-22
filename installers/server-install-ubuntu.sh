@@ -96,8 +96,8 @@ echo "[Interface]" >> /etc/amnezia/amneziawg/awg0.conf
 echo "PrivateKey = $PRIVSERV" >> /etc/amnezia/amneziawg/awg0.conf
 echo "Address = 8.20.30.1/24" >> /etc/amnezia/amneziawg/awg0.conf
 echo "ListenPort = 1984" >> /etc/amnezia/amneziawg/awg0.conf
-echo "PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o $DEV -j MASQUERADE" >> /etc/amnezia/amneziawg/awg0.conf
-echo "PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o $DEV -j MASQUERADE" >> /etc/amnezia/amneziawg/awg0.conf
+echo "PostUp = iptables -A FORWARD -i %i -o %i -s 8.20.30.0/24 -d 8.20.30.0/24 -j DROP; iptables -A FORWARD -i %i -o $DEV -j ACCEPT; iptables -A FORWARD -i $DEV -o %i -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -t nat -A POSTROUTING -s 8.20.30.0/24 -o $DEV -j MASQUERADE" >> /etc/amnezia/amneziawg/awg0.conf
+echo "PostDown = iptables -D FORWARD -i %i -o %i -s 8.20.30.0/24 -d 8.20.30.0/24 -j DROP; iptables -D FORWARD -i %i -o $DEV -j ACCEPT; iptables -D FORWARD -i $DEV -o %i -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -t nat -D POSTROUTING -s 8.20.30.0/24 -o $DEV -j MASQUERADE" >> /etc/amnezia/amneziawg/awg0.conf
 echo "Jc = 5" >> /etc/amnezia/amneziawg/awg0.conf
 echo "Jmin = 40" >> /etc/amnezia/amneziawg/awg0.conf
 echo "Jmax = 70" >> /etc/amnezia/amneziawg/awg0.conf
