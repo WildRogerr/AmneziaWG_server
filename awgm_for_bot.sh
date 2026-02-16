@@ -95,7 +95,7 @@ function main () {
                 read -p "Enter new Jmax value: " JMAX
                 read -p "Enter new S1 value: " S1
                 read -p "Enter new S2 value: " S2
-                read -p "Enter new I2 value: " I2
+                read -p "Enter new I1 value: " I1
                 edit_encrypt_value "$JC" "$JMIN" "$JMAX" "$S1" "$S2" "$I1"
                 echo
                 echo "Done!"
