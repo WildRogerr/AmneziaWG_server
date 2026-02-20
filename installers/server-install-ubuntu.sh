@@ -1,6 +1,8 @@
 #!/bin/bash
 
-hostnamectl set-hostname netserver
+read -p "Enter hostname: " _HOSTNAME
+
+hostnamectl set-hostname $_HOSTNAME
 
 root_password () {
 read -p "Change root password?(yes/no): "
@@ -16,7 +18,7 @@ fi
 
 root_password
 
-sed -i -e '1 s/^/127.0.0.1	netserver\n/;' /etc/hosts
+sed -i -e "1 s/^/127.0.0.1	$_HOSTNAME\n/;" /etc/hosts
 
 echo "blacklist pcspkr" > /etc/modprobe.d/blacklist-pcspkr.conf
 
