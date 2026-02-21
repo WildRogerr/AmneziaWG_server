@@ -23,7 +23,7 @@ sed -i -e "1 s/^/127.0.0.1	$_HOSTNAME\n/;" /etc/hosts
 echo "blacklist pcspkr" > /etc/modprobe.d/blacklist-pcspkr.conf
 
 apt-get -y full-upgrade
-apt update && apt install -y sudo locales net-tools man-db curl wget git make nano vim htop iftop bmon vnstat mc texinfo ssh iptables networkd-dispatcher tcpdump fail2ban resolvconf zip rsync sshfs screen links neofetch
+apt update && apt install -y sudo locales net-tools man-db curl wget git make nano vim htop iftop bmon vnstat ifstat mc texinfo ssh iptables networkd-dispatcher tcpdump fail2ban resolvconf zip rsync sshfs screen links neofetch
 systemctl start fail2ban
 systemctl enable fail2ban
 
