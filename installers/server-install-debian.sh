@@ -22,6 +22,7 @@ sed -i -e "1 s/^/127.0.0.1	$_HOSTNAME\n/;" /etc/hosts
 
 echo "blacklist pcspkr" > /etc/modprobe.d/blacklist-pcspkr.conf
 
+apt-get -y update
 apt-get -y full-upgrade
 apt update && apt install -y sudo locales net-tools man-db curl wget git make nano vim htop iftop bmon vnstat ifstat mc texinfo ssh iptables networkd-dispatcher tcpdump fail2ban resolvconf zip rsync sshfs screen links neofetch
 systemctl start fail2ban
@@ -70,7 +71,7 @@ systemctl enable ssh.service
 sed -i "s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/" /etc/sysctl.conf
 sysctl -p
 
-apt install -y software-properties-common python3-launchpadlib gnupg2 linux-headers-$(uname -r)
+apt install -y software-properties-common python3-launchpadlib gnupg2 linux-image-amd64 linux-headers-amd64
 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 57290828
 echo "deb https://ppa.launchpadcontent.net/amnezia/ppa/ubuntu focal main" | sudo tee -a /etc/apt/sources.list
 echo "deb-src https://ppa.launchpadcontent.net/amnezia/ppa/ubuntu focal main" | sudo tee -a /etc/apt/sources.list
