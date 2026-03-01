@@ -170,6 +170,7 @@ function main () {
             echo
 
         elif [[ "$REPLY" = "20" ]]; then
+            (cd /home/vpnserver/OwlVPN-bot && docker compose logs)
             systemctl status owl-vpn
             echo
             echo "Done!"
