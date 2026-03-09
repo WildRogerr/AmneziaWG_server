@@ -297,6 +297,8 @@ function copy_config_files () {
     echo "Endpoint = $IPADDRESS" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "AllowedIPs = 0.0.0.0/0, ::/0" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
     echo "PersistentKeepalive = 20" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    chmod 777 /home/vpnserver/user_configs/$1
+    chmod 777 /home/vpnserver/user_configs/$1/owlvpn.kz.conf
 }
 
 function delete_config_files () {
