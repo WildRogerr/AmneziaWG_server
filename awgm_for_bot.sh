@@ -3,6 +3,9 @@
 cd /etc/amnezia/amneziawg/keys
 
 function main () {
+
+    local _REPLY JC JMIN JMAX S1 S2 I1 IP _VALUE
+
     while true
     do
         echo "-------------------------------------------------------------"
@@ -31,17 +34,17 @@ function main () {
         echo "  20) Show Owl VPN Status"
         echo "  0) Exit"
         echo
-        read -p "Select an option [0-20]: "
+        read -p "Select an option [0-20]: " _REPLY
 
-        if [[ "$REPLY" = "1" ]]; then
+        if [[ "$_REPLY" = "1" ]]; then
             ls -l /home/vpnserver/user_configs
 
-        elif [[ "$REPLY" = "2" ]]; then
+        elif [[ "$_REPLY" = "2" ]]; then
             client_name_check
             local CL_NAME_CHECK="$_RESULT"
             show_client_config "$CL_NAME_CHECK"
 
-        elif [[ "$REPLY" = "3" ]]; then
+        elif [[ "$_REPLY" = "3" ]]; then
             client_name
             local CL_NAME="$_RESULT"
             generate_config "$CL_NAME"
@@ -50,7 +53,7 @@ function main () {
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "4" ]]; then
+        elif [[ "$_REPLY" = "4" ]]; then
             client_name_check
             local CL_NAME_CHECK1="$_RESULT"
             stop_config "$CL_NAME_CHECK1"
@@ -58,7 +61,7 @@ function main () {
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "5" ]]; then
+        elif [[ "$_REPLY" = "5" ]]; then
             client_name_check
             local CL_NAME_CHECK2="$_RESULT"
             start_config "$CL_NAME_CHECK2"
@@ -66,7 +69,7 @@ function main () {
             echo "Done!"
             echo
             
-        elif [[ "$REPLY" = "6" ]]; then
+        elif [[ "$_REPLY" = "6" ]]; then
             client_name_check
             local CL_NAME_CHECK3="$_RESULT"
             delete_config_files "$CL_NAME_CHECK3"
@@ -74,19 +77,19 @@ function main () {
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "7" ]]; then
+        elif [[ "$_REPLY" = "7" ]]; then
             systemctl status awg-quick@awg0.service
 
-        elif [[ "$REPLY" = "8" ]]; then
+        elif [[ "$_REPLY" = "8" ]]; then
             nano /etc/amnezia/amneziawg/awg0.conf
 
-        elif [[ "$REPLY" = "9" ]]; then
+        elif [[ "$_REPLY" = "9" ]]; then
             systemctl reload awg-quick@awg0
             echo
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "10" ]]; then
+        elif [[ "$_REPLY" = "10" ]]; then
             read -p "Enter new Jc value or enter 0 to return to main menu: " JC
             if [[ "$JC" = "0" ]]; then
                 :
@@ -102,7 +105,7 @@ function main () {
                 echo
             fi
 
-        elif [[ "$REPLY" = "11" ]]; then
+        elif [[ "$_REPLY" = "11" ]]; then
             read -p "Enter new IP address (IP address:Port) or enter 0 to return to main menu: " IP
             if [[ "$IP" = "0" ]]; then
                 :
@@ -113,25 +116,25 @@ function main () {
                 echo
             fi
 
-        elif [[ "$REPLY" = "12" ]]; then
+        elif [[ "$_REPLY" = "12" ]]; then
             systemctl restart awg-quick@awg0.service
             echo
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "13" ]]; then
+        elif [[ "$_REPLY" = "13" ]]; then
             systemctl stop awg-quick@awg0.service
             echo
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "14" ]]; then
+        elif [[ "$_REPLY" = "14" ]]; then
             systemctl start awg-quick@awg0.service
             echo
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "15" ]]; then
+        elif [[ "$_REPLY" = "15" ]]; then
             local SPEED_LIMIT=$(cat /root/bin/speed_limit)
             echo Current speed limit is ${SPEED_LIMIT}mbit.
             read -p "Enter new speed limit: " _VALUE
@@ -142,7 +145,7 @@ function main () {
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "16" ]]; then
+        elif [[ "$_REPLY" = "16" ]]; then
             systemctl stop set-tc
 			systemctl disable set-tc
             tc qdisc del dev awg0 root
@@ -150,33 +153,33 @@ function main () {
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "17" ]]; then
+        elif [[ "$_REPLY" = "17" ]]; then
             systemctl enable set-tc
 			systemctl start set-tc
             echo
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "18" ]]; then
+        elif [[ "$_REPLY" = "18" ]]; then
             systemctl stop owl-vpn
             echo
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "19" ]]; then
+        elif [[ "$_REPLY" = "19" ]]; then
             systemctl start owl-vpn
             echo
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "20" ]]; then
+        elif [[ "$_REPLY" = "20" ]]; then
             (cd /home/vpnserver/OwlVPN-bot && docker compose logs)
             systemctl status owl-vpn
             echo
             echo "Done!"
             echo
 
-        elif [[ "$REPLY" = "0" ]]; then
+        elif [[ "$_REPLY" = "0" ]]; then
             echo
             echo Exit
             break
@@ -189,27 +192,29 @@ function main () {
 }
 
 function client_name () {
+    local _REPLY
     echo Configs list:
     ls -l /home/vpnserver/user_configs
-    read -p "Enter Client Name: "
-         local CLIENT=$(ls /home/vpnserver/user_configs | grep $REPLY)
-    if [[ "$REPLY" != "$CLIENT" ]]; then
-        _RESULT=$REPLY
+    read -p "Enter Client Name: " _REPLY
+         local CLIENT=$(ls /home/vpnserver/user_configs | grep "$_REPLY")
+    if [[ "$_REPLY" != "$CLIENT" ]]; then
+        _RESULT=$_REPLY
     else
         echo
-        echo Name $REPLY already exists, enter new name.
+        echo Name "$_REPLY" already exists, enter new name.
         echo
-        client_name_check
+        client_name
     fi
 }
 
 function client_name_check () {
+    local _REPLY
     echo Configs list:
     ls -l /home/vpnserver/user_configs
-    read -p "Enter Client Name: "
-        local CLIENT=$(ls /home/vpnserver/user_configs | grep $REPLY)
-    if [[ "$REPLY" = "$CLIENT" ]]; then
-        _RESULT=$REPLY
+    read -p "Enter Client Name: " _REPLY
+        local CLIENT=$(ls /home/vpnserver/user_configs | grep "$_REPLY")
+    if [[ "$_REPLY" = "$CLIENT" ]]; then
+        _RESULT=$_REPLY
     else
         echo Enter name, that already exists!
         client_name_check
@@ -244,7 +249,12 @@ function generate_config () {
 }
 
 function stop_config () {
-    local NUM=$(grep -n $1 /etc/amnezia/amneziawg/awg0.conf | cut -d: -f1)
+    local NUM=$(grep -nFm1 "$1" /etc/amnezia/amneziawg/awg0.conf | cut -d: -f1)
+
+    [[ -z "$NUM" ]] && {
+        return 1
+    }
+
     local NUM1="$NUM"s
     local NUM2=$(($NUM + 1))s
     local NUM3=$(($NUM + 2))s
@@ -257,7 +267,12 @@ function stop_config () {
 }
 
 function start_config () {
-    local NUM=$(grep -n $1 /etc/amnezia/amneziawg/awg0.conf | cut -d: -f1)
+    local NUM=$(grep -nFm1 "$1" /etc/amnezia/amneziawg/awg0.conf | cut -d: -f1)
+
+    [[ -z "$NUM" ]] && {
+        return 1
+    }
+
     local NUM1="$NUM"s
     local NUM2=$(($NUM + 1))s
     local NUM3=$(($NUM + 2))s
@@ -302,17 +317,18 @@ function copy_config_files () {
 }
 
 function delete_config_files () {
+    local _REPLY
     echo "Are you sure?"
-    read -p "enter "yes" or "no": "
+    read -p "enter "yes" or "no": " _REPLY
 
-    if [[ "$REPLY" = "yes" ]]; then
+    if [[ "$_REPLY" = "yes" ]]; then
         rm publickey.$1
         rm privatekey.$1
         rm presharedkey.$1
         rm -R /home/vpnserver/user_configs/$1
         sed -i "/$1/,+4d" /etc/amnezia/amneziawg/awg0.conf
         systemctl reload awg-quick@awg0
-    elif [[ "$REPLY" = "no" ]]; then
+    elif [[ "$_REPLY" = "no" ]]; then
         echo "Config files is not deleted."      
     else 
         delete_config_files
