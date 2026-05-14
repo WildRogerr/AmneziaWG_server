@@ -170,26 +170,50 @@ touch /root/bin/speed_limit
 
 echo "30" >> /root/bin/speed_limit
 
-echo "#!/bin/bash" >> /root/bin/set_tc.sh
-echo -e \ >> /root/bin/set_tc.sh 
-echo '_SPEED_LIMIT=$(cat /root/bin/speed_limit)' >> /root/bin/set_tc.sh
-echo '_QUANTUM=$(( ${_SPEED_LIMIT} * 125000 / 200 ))' >> /root/bin/set_tc.sh
-echo -e \ >> /root/bin/set_tc.sh
-echo 'tc qdisc add dev awg0 root handle 1: htb default 12 r2q 256' >> /root/bin/set_tc.sh
-echo 'tc class add dev awg0 parent 1: classid 1:1 htb rate 1000mbit ceil 1000mbit quantum 40000' >> /root/bin/set_tc.sh
-echo -e \ >> /root/bin/set_tc.sh
-echo "# users" >> /root/bin/set_tc.sh
-echo -e \ >> /root/bin/set_tc.sh 
+cat << 'EOF' > /root/bin/set_tc.sh
+#!/bin/bash
 
-for i in {2..253}; do
-    IP="8.20.30.$i"
-    CLASSID="1:$i"
+_SPEED_LIMIT=$(cat /root/bin/speed_limit)
+_QUANTUM=$(( ${_SPEED_LIMIT} * 125000 / 200 ))
+
+tc qdisc del dev awg0 root 2>/dev/null
+tc qdisc del dev awg0 ingress 2>/dev/null
+tc qdisc del dev ifb0 root 2>/dev/null
+
+modprobe ifb 2>/dev/null
+ip link add ifb0 type ifb 2>/dev/null
+ip link set ifb0 up 2>/dev/null
+
+tc qdisc add dev awg0 root handle 1: htb default 12 r2q 256
+tc class add dev awg0 parent 1: classid 1:1 htb rate 1000mbit ceil 1000mbit quantum 40000
+
+tc qdisc add dev awg0 ingress
+tc filter add dev awg0 parent ffff: protocol ip u32 match u32 0 0 action mirred egress redirect dev ifb0
+
+tc qdisc add dev ifb0 root handle 2: htb default 10
+tc class add dev ifb0 parent 2: classid 2:1 htb rate 1000mbit
+tc class add dev ifb0 parent 2:1 classid 2:1000 htb rate 1000mbit
+
+for ip in {2..253}; do
+    CLASSID=$ip
+    tc class add dev awg0 parent 1:1 classid 1:$CLASSID htb rate "${_SPEED_LIMIT}"mbit ceil "${_SPEED_LIMIT}"mbit quantum ${_QUANTUM}
+    tc filter add dev awg0 protocol ip parent 1:0 prio 1 u32 match ip dst 8.20.30.$ip flowid 1:$CLASSID
     
-    echo 'tc class add dev awg0 parent 1:1 classid '"$CLASSID"' htb rate "${_SPEED_LIMIT}"mbit ceil "${_SPEED_LIMIT}"mbit quantum ${_QUANTUM}' >> /root/bin/set_tc.sh
-    echo "tc filter add dev awg0 protocol ip parent 1:0 prio 1 u32 match ip dst $IP flowid $CLASSID" >> /root/bin/set_tc.sh
+    tc class add dev ifb0 parent 2:1 classid 2:$CLASSID htb rate "${_SPEED_LIMIT}"mbit ceil "${_SPEED_LIMIT}"mbit
+    tc filter add dev ifb0 parent 2: protocol ip u32 match ip src 8.20.30.$ip flowid 2:$CLASSID
 done
+EOF
+
+cat << EOF >> /root/bin/tc-stop.sh
+#!/bin/bash
+
+tc qdisc del dev awg0 root 2>/dev/null
+tc qdisc del dev awg0 ingress 2>/dev/null
+tc qdisc del dev ifb0 root 2>/dev/null
+EOF
 
 chmod 755 /root/bin/set_tc.sh
+chmod 755 /root/bin//root/bin/tc-stop.sh
 
 touch /etc/systemd/system/set-tc.service
 

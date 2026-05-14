@@ -9,7 +9,7 @@ function main () {
     while true
     do
         echo "-------------------------------------------------------------"
-        echo "AWG Manager"
+        echo "  AWG Manager"
         echo "-------------------------------------------------------------"
         echo
         echo "  1) Clients List"
@@ -34,7 +34,7 @@ function main () {
         echo "  20) Show Owl VPN Status"
         echo "  0) Exit"
         echo
-        read -p "Select an option [0-20]: " _REPLY
+        read -p "  Select an option [0-20]: " _REPLY
 
         if [[ "$_REPLY" = "1" ]]; then
             ls -l /home/vpnserver/user_configs
@@ -139,7 +139,7 @@ function main () {
             echo Current speed limit is ${SPEED_LIMIT}mbit.
             read -p "Enter new speed limit: " _VALUE
             change_speed_limit "$_VALUE"
-            tc qdisc del dev awg0 root
+            /root/bin/tc-stop.sh
             systemctl restart set-tc
             echo
             echo "Done!"
@@ -148,7 +148,7 @@ function main () {
         elif [[ "$_REPLY" = "16" ]]; then
             systemctl stop set-tc
 			systemctl disable set-tc
-            tc qdisc del dev awg0 root
+            /root/bin/tc-stop.sh
             echo
             echo "Done!"
             echo
