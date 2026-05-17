@@ -210,6 +210,7 @@ cat << EOF >> /root/bin/tc-stop.sh
 tc qdisc del dev awg0 root 2>/dev/null
 tc qdisc del dev awg0 ingress 2>/dev/null
 tc qdisc del dev ifb0 root 2>/dev/null
+ip link del ifb0 2>/dev/null
 EOF
 
 chmod 755 /root/bin/set_tc.sh
