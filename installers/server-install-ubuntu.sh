@@ -2,6 +2,13 @@
 
 # Put awgm.sh with this script in /root
 
+sed -i "deb-src/^#//" /etc/apt/sources.list
+# for Ubuntu 24 # sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
+apt-get update
+apt install -y software-properties-common python3-launchpadlib gnupg2 linux-headers-$(uname -r)
+add-apt-repository ppa:amnezia/ppa
+apt-get install -y amneziawg
+
 read -p "Enter hostname: " _HOSTNAME
 
 hostnamectl set-hostname $_HOSTNAME
@@ -72,13 +79,6 @@ systemctl enable ssh.service
 
 sed -i "s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/" /etc/sysctl.conf
 sysctl -p
-
-sed -i "deb-src/^#//" /etc/apt/sources.list
-# for Ubuntu 24 # sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
-apt-get update
-apt install -y software-properties-common python3-launchpadlib gnupg2 linux-headers-$(uname -r)
-add-apt-repository ppa:amnezia/ppa
-apt-get install -y amneziawg
 
 mkdir /etc/amnezia/amneziawg/keys
 cd /etc/amnezia/amneziawg/keys
