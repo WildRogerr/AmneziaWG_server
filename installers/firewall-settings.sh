@@ -1,10 +1,12 @@
+#!/bin/bash
+
 apt install -y ufw
 ufw disable
 ufw default deny incoming
 ufw default allow outgoing
 ufw allow 989/tcp
 ufw allow 1984/udp
-ufw allow from 193.108.114.119 to any
+ufw allow from (IP) to any
 ufw deny from ::/0
 ufw deny to ::/0
 ufw enable
