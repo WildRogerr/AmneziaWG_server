@@ -13,18 +13,6 @@ read -p "Enter hostname: " _HOSTNAME
 
 hostnamectl set-hostname $_HOSTNAME
 
-cat << 'EOF' >> /etc/resolvconf/resolv.conf.d/head
-nameserver 8.8.8.8
-nameserver 1.1.1.1
-EOF
-
-cat << 'EOF' >> /etc/resolvconf/resolv.conf
-nameserver 8.8.8.8
-nameserver 1.1.1.1
-EOF
-
-systemctl restart resolvconf
-
 root_password () {
 read -p "Change root password?(yes/no): "
 if [[ "$REPLY" = "yes" ]]; then
@@ -57,6 +45,18 @@ echo LC_ALL=en_US.UTF-8 >> /etc/default/locale
 echo LANG=C.UTF-8 >> /etc/default/locale
 echo LC_TYPE=en_US.UTF-8 >> /etc/default/locale
 locale-gen
+
+cat << 'EOF' >> /etc/resolvconf/resolv.conf.d/head
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+EOF
+
+cat << 'EOF' >> /etc/resolvconf/resolv.conf
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+EOF
+
+systemctl restart resolvconf
 
 read -p "Enter name of new user: " _USERNAME
 read -p "Enter (ip address:port) of vpn server: " _IPADDRESS
