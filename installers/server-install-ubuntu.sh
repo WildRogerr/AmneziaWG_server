@@ -278,4 +278,29 @@ cp /root/awgm.sh /usr/local/bin/awgm
 
 chmod 777 /usr/local/bin/awgm
 
+# Zabbix
+
+sudo apt install -y zabbix-agent
+
+cat <<EOF > /usr/local/bin/ifstat_to_zabbix.sh
+#!/bin/bash
+
+INTERFACE=awg0
+OUTPUT_FILE="/var/lib/zabbix/network_speed.txt"
+
+RX_TX=\$(ifstat -i \$INTERFACE -b 1 1 | tail -n 1 | awk '{print \$1, \$2}')
+
+echo "\$RX_TX" > "\$OUTPUT_FILE"
+
+EOF
+
+chmod 755 /usr/local/bin/ifstat_to_zabbix.sh
+mkdir -p /var/lib/zabbix
+mkdir -p /etc/zabbix/zabbix_agentd.d
+mkdir -p /var/log/zabbix/
+touch /var/log/zabbix/zabbix_agentd.log
+chmod 777 /var/log/zabbix/zabbix_agentd.log
+
+sudo systemctl enable zabbix-agent --now
+
 #reboot after installation
