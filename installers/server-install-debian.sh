@@ -4,9 +4,10 @@
 
 apt-get update
 apt install -y software-properties-common python3-launchpadlib gnupg2 linux-image-amd64 linux-headers-amd64
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4166F2C257290828
 echo "deb https://ppa.launchpadcontent.net/amnezia/ppa/ubuntu focal main" | sudo tee -a /etc/apt/sources.list
 echo "deb-src https://ppa.launchpadcontent.net/amnezia/ppa/ubuntu focal main" | sudo tee -a /etc/apt/sources.list
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4166F2C257290828
+apt-get update
 apt-get install -y amneziawg
 
 read -p "Enter hostname: " _HOSTNAME

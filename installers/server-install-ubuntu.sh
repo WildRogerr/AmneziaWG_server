@@ -7,6 +7,7 @@ sed -i "deb-src/^#//" /etc/apt/sources.list
 apt-get update
 apt install -y software-properties-common python3-launchpadlib gnupg2 linux-headers-$(uname -r)
 add-apt-repository ppa:amnezia/ppa
+apt-get update
 apt-get install -y amneziawg
 
 read -p "Enter hostname: " _HOSTNAME
