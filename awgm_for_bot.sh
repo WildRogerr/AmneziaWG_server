@@ -90,20 +90,10 @@ function main () {
             echo
 
         elif [[ "$_REPLY" = "10" ]]; then
-            read -p "Enter new Jc value or enter 0 to return to main menu: " JC
-            if [[ "$JC" = "0" ]]; then
-                :
-            else
-                read -p "Enter new Jmin value: " JMIN
-                read -p "Enter new Jmax value: " JMAX
-                read -p "Enter new S1 value: " S1
-                read -p "Enter new S2 value: " S2
-                read -p "Enter new I1 value: " I1
-                edit_encrypt_value "$JC" "$JMIN" "$JMAX" "$S1" "$S2" "$I1"
-                echo
-                echo "Done!"
-                echo
-            fi
+            edit_encrypt_value
+            echo
+            echo "Done!"
+            echo
 
         elif [[ "$_REPLY" = "11" ]]; then
             read -p "Enter new IP address (IP address:Port) or enter 0 to return to main menu: " IP
@@ -222,23 +212,25 @@ function client_name_check () {
 }
 
 function show_client_config () {
+    local USER_CONFIG_NAME=$(cat userconfig.name)
     echo 
     echo "Config of $1:"
     echo 
     echo "*************************************************************"
-    cat /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    cat /home/vpnserver/user_configs/$1/$USER_CONFIG_NAME
     echo "*************************************************************"
     echo 
 }
 
 function generate_config () {
+    local USER_CONFIG_NAME=$(cat userconfig.name)
     umask 077
     awg genkey | tee privatekey.$1 | awg pubkey > publickey.$1
     awg genpsk > presharedkey.$1
     local PUBCL=$(cat publickey.$1)
     local PRECL=$(cat presharedkey.$1)
     mkdir /home/vpnserver/user_configs/$1
-    touch /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    touch /home/vpnserver/user_configs/$1/$USER_CONFIG_NAME
     local IP=$(ls -l /home/vpnserver/user_configs | wc -l)
     echo "[Peer]#$1" >> /etc/amnezia/amneziawg/awg0.conf
     echo "PresharedKey = $PRECL" >> /etc/amnezia/amneziawg/awg0.conf
@@ -285,35 +277,69 @@ function start_config () {
 }
 
 function copy_config_files () {
+    local USER_CONFIG_NAME=$(cat userconfig.name)
+    local CONFIG="/home/vpnserver/user_configs/$1/$USER_CONFIG_NAME"
     local PUBSERV=$(cat publickey.server)
     local PRIVCL=$(cat privatekey.$1)
     local PRECL=$(cat presharedkey.$1)
     local IPADDRESS=$(cat ipaddress)
+    local HEADERPROTECTION=$(cat header.protection.key)
     local IP=$(ls -l /home/vpnserver/user_configs | wc -l)
+    local -A ENCRYPT_PARAMS
+    local key value
 
-    echo "[Interface]" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "PrivateKey = $PRIVCL" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "Address = 8.20.30.$IP/32" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "DNS = 1.1.1.1" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "Jc = 5" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "Jmin = 40" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "Jmax = 70" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "S1 = 8" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "S2 = 5" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "H1 = 1106457265" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "H2 = 249455488" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "H3 = 1209847463" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "H4 = 1646644382" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "I1 = <b 0xc70000000108ce1bf31eec7d93360000449e227e4596ed7f75c4d35ce31880b4133107c822c6355b51f0d7c1bba96d5c210a48aca01885fed0871cfc37d59137d73b506dc013bb4a13c060ca5b04b7ae215af71e37d6e8ff1db235f9fe0c25cb8b492471054a7c8d0d6077d430d07f6e87a8699287f6e69f54263c7334a8e144a29851429bf2e350e519445172d36953e96085110ce1fb641e5efad42c0feb4711ece959b72cc4d6f3c1e83251adb572b921534f6ac4b10927167f41fe50040a75acef62f45bded67c0b45b9d655ce374589cad6f568b8475b2e8921ff98628f86ff2eb5bcce6f3ddb7dc89e37c5b5e78ddc8d93a58896e530b5f9f1448ab3b7a1d1f24a63bf981634f6183a21af310ffa52e9ddf5521561760288669de01a5f2f1a4f922e68d0592026bbe4329b654d4f5d6ace4f6a23b8560b720a5350691c0037b10acfac9726add44e7d3e880ee6f3b0d6429ff33655c297fee786bb5ac032e48d2062cd45e305e6d8d8b82bfbf0fdbc5ec09943d1ad02b0b5868ac4b24bb10255196be883562c35a713002014016b8cc5224768b3d330016cf8ed9300fe6bf39b4b19b3667cddc6e7c7ebe4437a58862606a2a66bd4184b09ab9d2cd3d3faed4d2ab71dd821422a9540c4c5fa2a9b2e6693d411a22854a8e541ed930796521f03a54254074bc4c5bca152a1723260e7d70a24d49720acc544b41359cfc252385bda7de7d05878ac0ea0343c77715e145160e6562161dfe2024846dfda3ce99068817a2418e66e4f37dea40a21251c8a034f83145071d93baadf050ca0f95dc9ce2338fb082d64fbc8faba905cec66e65c0e1f9b003c32c943381282d4ab09bef9b6813ff3ff5118623d2617867e25f0601df583c3ac51bc6303f79e68d8f8de4b8363ec9c7728b3ec5fcd5274edfca2a42f2727aa223c557afb33f5bea4f64aeb252c0150ed734d4d8eccb257824e8e090f65029a3a042a51e5cc8767408ae07d55da8507e4d009ae72c47ddb138df3cab6cc023df2532f88fb5a4c4bd917fafde0f3134be09231c389c70bc55cb95a779615e8e0a76a2b4d943aabfde0e394c985c0cb0376930f92c5b6998ef49ff4a13652b787503f55c4e3d8eebd6e1bc6db3a6d405d8405bd7a8db7cefc64d16e0d105a468f3d33d29e5744a24c4ac43ce0eb1bf6b559aed520b91108cda2de6e2c4f14bc4f4dc58712580e07d217c8cca1aaf7ac04bab3e7b1008b966f1ed4fba3fd93a0a9d3a27127e7aa587fbcc60d548300146bdc126982a58ff5342fc41a43f83a3d2722a26645bc961894e339b953e78ab395ff2fb854247ad06d446cc2944a1aefb90573115dc198f5c1efbc22bc6d7a74e41e666a643d5f85f57fde81b87ceff95353d22ae8bab11684180dd142642894d8dc34e402f802c2fd4a73508ca99124e428d67437c871dd96e506ffc39c0fc401f666b437adca41fd563cbcfd0fa22fbbf8112979c4e677fb533d981745cceed0fe96da6cc0593c430bbb71bcbf924f70b4547b0bb4d41c94a09a9ef1147935a5c75bb2f721fbd24ea6a9f5c9331187490ffa6d4e34e6bb30c2c54a0344724f01088fb2751a486f425362741664efb287bce66c4a544c96fa8b124d3c6b9eaca170c0b530799a6e878a57f402eb0016cf2689d55c76b2a91285e2273763f3afc5bc9398273f5338a06d>" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo -e \ >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "[Peer]" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "PresharedKey = $PRECL" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "PublicKey = $PUBSERV" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "Endpoint = $IPADDRESS" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "AllowedIPs = 0.0.0.0/0, ::/0" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    echo "PersistentKeepalive = 20" >> /home/vpnserver/user_configs/$1/owlvpn.kz.conf
-    chmod 777 /home/vpnserver/user_configs/$1
-    chmod 777 /home/vpnserver/user_configs/$1/owlvpn.kz.conf
+    while IFS='=' read -r key value; do
+        key="${key//[[:space:]]/}"
+
+        # Skip empty lines and comments
+        [[ -z "$key" || "$key" == \#* ]] && continue
+
+        # Remove leading whitespace from value
+        value="${value#"${value%%[![:space:]]*}"}"
+
+        # Remove trailing whitespace from value
+        value="${value%"${value##*[![:space:]]}"}"
+
+        ENCRYPT_PARAMS["$key"]="$value"
+
+    done < "encrypt.conf"
+
+    echo "[Interface]" > "$CONFIG"
+    echo "PrivateKey = $PRIVCL" >> "$CONFIG"
+    echo "Address = 8.20.30.$IP/32" >> "$CONFIG"
+    echo "DNS = 1.1.1.1" >> "$CONFIG"
+    echo "Jc = ${ENCRYPT_PARAMS[Jc]}" >> "$CONFIG"
+    echo "Jmin = ${ENCRYPT_PARAMS[Jmin]}" >> "$CONFIG"
+    echo "Jmax = ${ENCRYPT_PARAMS[Jmax]}" >> "$CONFIG"
+    echo "S1 = ${ENCRYPT_PARAMS[S1]}" >> "$CONFIG"
+    echo "S2 = ${ENCRYPT_PARAMS[S2]}" >> "$CONFIG"
+    echo "S3 = ${ENCRYPT_PARAMS[S3]}" >> "$CONFIG"
+    echo "S4 = ${ENCRYPT_PARAMS[S4]}" >> "$CONFIG"
+    echo "H1 = ${ENCRYPT_PARAMS[H1]}" >> "$CONFIG"
+    echo "H2 = ${ENCRYPT_PARAMS[H2]}" >> "$CONFIG"
+    echo "H3 = ${ENCRYPT_PARAMS[H3]}" >> "$CONFIG"
+    echo "H4 = ${ENCRYPT_PARAMS[H4]}" >> "$CONFIG"
+    echo "I1 = ${ENCRYPT_PARAMS[I1]}" >> "$CONFIG"
+    echo "I2 = ${ENCRYPT_PARAMS[I2]}" >> "$CONFIG"
+    echo "I3 = ${ENCRYPT_PARAMS[I3]}" >> "$CONFIG"
+    echo "I4 = ${ENCRYPT_PARAMS[I4]}" >> "$CONFIG"
+    echo "I5 = ${ENCRYPT_PARAMS[I5]}" >> "$CONFIG"
+    echo "HeaderProtectionKey = $HEADERPROTECTION" >> "$CONFIG"
+    echo "ContentPaddingAddition = ${ENCRYPT_PARAMS[ContentPaddingAddition]}" >> "$CONFIG"
+    echo "RekeyAfterTime = ${ENCRYPT_PARAMS[RekeyAfterTime]}" >> "$CONFIG"
+    echo "RekeyTimeout = ${ENCRYPT_PARAMS[RekeyTimeout]}" >> "$CONFIG"
+    echo "RejectAfterTime = ${ENCRYPT_PARAMS[RejectAfterTime]}" >> "$CONFIG"
+    echo "KeepaliveTimeout = ${ENCRYPT_PARAMS[KeepaliveTimeout]}" >> "$CONFIG"
+    echo "MaxHandshakeAttempts = ${ENCRYPT_PARAMS[MaxHandshakeAttempts]}" >> "$CONFIG"
+    echo "RandomTrailers = ${ENCRYPT_PARAMS[RandomTrailers]}" >> "$CONFIG"
+    echo "DisableCookies = ${ENCRYPT_PARAMS[DisableCookies]}" >> "$CONFIG"
+    echo >> "$CONFIG"
+    echo "[Peer]" >> "$CONFIG"
+    echo "PresharedKey = $PRECL" >> "$CONFIG"
+    echo "PublicKey = $PUBSERV" >> "$CONFIG"
+    echo "Endpoint = $IPADDRESS" >> "$CONFIG"
+    echo "AllowedIPs = 0.0.0.0/0, ::/0" >> "$CONFIG"
+    echo "PersistentKeepalive = 20" >> "$CONFIG"
 }
 
 function delete_config_files () {
@@ -336,16 +362,450 @@ function delete_config_files () {
 }
 
 function edit_encrypt_value () {
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "5{s/^\(.\{5\}\).*/\1$1/}" {} \;
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "6{s/^\(.\{7\}\).*/\1$2/}" {} \;
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "7{s/^\(.\{7\}\).*/\1$3/}" {} \;
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "8{s/^\(.\{5\}\).*/\1$4/}" {} \;
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "9{s/^\(.\{5\}\).*/\1$5/}" {} \;
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "14{s/^\(.\{5\}\).*/\1$6/}" {} \;
+    local CONFIG_DIR="/home/vpnserver/user_configs"
+    local CONFIG_NAME
+    local ENCRYPT_FILE="encrypt.conf"
+    local HEADER_FILE="header.protection.key"
+    local CONFIG
+    local PARAM
+    local KEY
+    local VALUE
+    local LINE
+    local INPUT
+    local DEFAULT
+    local DISPLAY
+    local TMP
+    local ENCRYPT_TMP
+    local HEADER_TMP
+    local CONFIRM
+
+    local -a PARAM_NAMES=(
+        Jc
+        Jmin
+        Jmax
+        S1
+        S2
+        S3
+        S4
+        H1
+        H2
+        H3
+        H4
+        I1
+        I2
+        I3
+        I4
+        I5
+        HeaderProtectionKey
+        ContentPaddingAddition
+        RekeyAfterTime
+        RekeyTimeout
+        RejectAfterTime
+        KeepaliveTimeout
+        MaxHandshakeAttempts
+        RandomTrailers
+        DisableCookies
+    )
+
+    local -a CONFIGS=()
+    local -a EXTRA_LINES=()
+    local -a AWK_ENV=()
+
+    local -A PARAM_SET=()
+    local -A CURRENT=()
+    local -A CURRENT_SET=()
+    local -A CHANGED=()
+    local -A NEW_VALUES=()
+
+    local UPDATED=0
+    local UNCHANGED=0
+    local SKIPPED=0
+    local ENCRYPT_CHANGED=0
+    local HEADER_CHANGED=0
+
+    # Check central files
+    if [[ ! -f "$ENCRYPT_FILE" ]]; then
+        echo "File not found: $ENCRYPT_FILE"
+        return 1
+    fi
+
+    if [[ ! -f "userconfig.name" ]]; then
+        echo "File not found: userconfig.name"
+        return 1
+    fi
+
+    CONFIG_NAME=$(cat userconfig.name)
+
+    if [[ -z "$CONFIG_NAME" ]]; then
+        echo "Configuration filename is empty"
+        return 1
+    fi
+
+    # Find client configuration files
+    mapfile -d '' CONFIGS < <(
+        find "$CONFIG_DIR" -type f -name "$CONFIG_NAME" -print0
+    )
+
+    if [[ ${#CONFIGS[@]} -eq 0 ]]; then
+        echo "No configuration files found"
+        return 1
+    fi
+
+    # Build parameter list
+    for PARAM in "${PARAM_NAMES[@]}"; do
+        PARAM_SET["$PARAM"]=1
+    done
+
+    # Read current values from encrypt.conf
+    while IFS= read -r LINE || [[ -n "$LINE" ]]; do
+
+        [[ "$LINE" != *"="* ]] && {
+            EXTRA_LINES+=("$LINE")
+            continue
+        }
+
+        KEY="${LINE%%=*}"
+        VALUE="${LINE#*=}"
+
+        KEY="${KEY//[[:space:]]/}"
+
+        # Skip empty lines and comments
+        if [[ -z "$KEY" || "$KEY" == \#* ]]; then
+            EXTRA_LINES+=("$LINE")
+            continue
+        fi
+
+        # Trim value
+        VALUE="${VALUE#"${VALUE%%[![:space:]]*}"}"
+        VALUE="${VALUE%"${VALUE##*[![:space:]]}"}"
+
+        if [[ -n "${PARAM_SET[$KEY]+x}" &&
+              "$KEY" != "HeaderProtectionKey" ]]; then
+
+            CURRENT["$KEY"]="$VALUE"
+            CURRENT_SET["$KEY"]=1
+        else
+            EXTRA_LINES+=("$LINE")
+        fi
+
+    done < "$ENCRYPT_FILE"
+
+    # Read HeaderProtectionKey separately
+    if [[ -f "$HEADER_FILE" ]]; then
+        CURRENT["HeaderProtectionKey"]=$(cat "$HEADER_FILE")
+        CURRENT_SET["HeaderProtectionKey"]=1
+    fi
+
+    # User input
+    echo "========================================"
+    echo "       Parameter configuration"
+    echo "========================================"
+    echo
+    echo "Press Enter to keep the existing value."
+    echo "For missing parameters, press Enter to skip."
+    echo
+
+    for PARAM in "${PARAM_NAMES[@]}"; do
+
+        DEFAULT="${CURRENT[$PARAM]-}"
+        DISPLAY="$DEFAULT"
+
+        if (( ${#DISPLAY} > 100 )); then
+            DISPLAY="${DISPLAY:0:80}... (${#DEFAULT} characters)"
+        fi
+
+        if [[ -n "${CURRENT_SET[$PARAM]+x}" ]]; then
+            read -r -p "$PARAM [$DISPLAY]: " INPUT || INPUT=""
+        else
+            read -r -p "$PARAM (new parameter, leave empty to skip): " INPUT || INPUT=""
+        fi
+
+        # Only explicitly entered values are marked as changed
+        if [[ -n "$INPUT" ]]; then
+            CHANGED["$PARAM"]=1
+            NEW_VALUES["$PARAM"]="$INPUT"
+        fi
+
+    done
+
+    # Check whether anything was changed
+    if [[ ${#CHANGED[@]} -eq 0 ]]; then
+        echo
+        echo "No changes requested."
+        return 0
+    fi
+
+    echo
+    echo "========================================"
+    echo "             Changes"
+    echo "========================================"
+
+    for PARAM in "${PARAM_NAMES[@]}"; do
+        if [[ -n "${CHANGED[$PARAM]+x}" ]]; then
+            echo "$PARAM = ${NEW_VALUES[$PARAM]}"
+        fi
+    done
+
+    echo
+    echo "Configuration files found: ${#CONFIGS[@]}"
+    echo
+
+    read -r -p "Apply changes? (y/N): " CONFIRM
+
+    if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
+        echo "Operation cancelled"
+        return 0
+    fi
+
+    # Determine which central files need updating
+    for PARAM in "${PARAM_NAMES[@]}"; do
+        if [[ -n "${CHANGED[$PARAM]+x}" ]]; then
+            if [[ "$PARAM" == "HeaderProtectionKey" ]]; then
+                HEADER_CHANGED=1
+            else
+                ENCRYPT_CHANGED=1
+            fi
+        fi
+    done
+
+    # Update encrypt.conf
+    if (( ENCRYPT_CHANGED )); then
+
+        ENCRYPT_TMP=$(mktemp "${ENCRYPT_FILE}.XXXXXX") || return 1
+
+        for PARAM in "${PARAM_NAMES[@]}"; do
+
+            [[ "$PARAM" == "HeaderProtectionKey" ]] && continue
+
+            if [[ -n "${CHANGED[$PARAM]+x}" ]]; then
+                printf '%s = %s\n' "$PARAM" "${NEW_VALUES[$PARAM]}" >> "$ENCRYPT_TMP"
+
+            elif [[ -n "${CURRENT_SET[$PARAM]+x}" ]]; then
+                printf '%s = %s\n' "$PARAM" "${CURRENT[$PARAM]}" >> "$ENCRYPT_TMP"
+            fi
+
+        done
+
+        # Preserve comments and unknown entries
+        for LINE in "${EXTRA_LINES[@]}"; do
+            printf '%s\n' "$LINE" >> "$ENCRYPT_TMP"
+        done
+
+        chown --reference="$ENCRYPT_FILE" "$ENCRYPT_TMP" || {
+            rm -f "$ENCRYPT_TMP"
+            return 1
+        }
+
+        chmod --reference="$ENCRYPT_FILE" "$ENCRYPT_TMP" || {
+            rm -f "$ENCRYPT_TMP"
+            return 1
+        }
+
+        mv "$ENCRYPT_TMP" "$ENCRYPT_FILE" || {
+            rm -f "$ENCRYPT_TMP"
+            return 1
+        }
+
+        echo "[UPDATED] $ENCRYPT_FILE"
+    fi
+
+    # Update header.protection.key
+    if (( HEADER_CHANGED )); then
+
+        HEADER_TMP=$(mktemp "${HEADER_FILE}.XXXXXX") || return 1
+
+        printf '%s\n' "${NEW_VALUES[HeaderProtectionKey]}" > "$HEADER_TMP"
+
+        if [[ -f "$HEADER_FILE" ]]; then
+            chown --reference="$HEADER_FILE" "$HEADER_TMP" || {
+                rm -f "$HEADER_TMP"
+                return 1
+            }
+
+            chmod --reference="$HEADER_FILE" "$HEADER_TMP" || {
+                rm -f "$HEADER_TMP"
+                return 1
+            }
+        fi
+
+        mv "$HEADER_TMP" "$HEADER_FILE" || {
+            rm -f "$HEADER_TMP"
+            return 1
+        }
+
+        echo "[UPDATED] $HEADER_FILE"
+    fi
+
+    # Prepare environment for AWK
+    AWK_ENV=("CFG_KEYS=${PARAM_NAMES[*]}")
+
+    for PARAM in "${PARAM_NAMES[@]}"; do
+
+        if [[ -n "${CHANGED[$PARAM]+x}" ]]; then
+            AWK_ENV+=("CFG_CHANGED_$PARAM=1")
+            AWK_ENV+=("CFG_FILL_$PARAM=${NEW_VALUES[$PARAM]}")
+        fi
+
+    done
+
+    echo
+    echo "Updating client configuration files..."
+    echo
+
+    # Process client configuration files
+    for CONFIG in "${CONFIGS[@]}"; do
+
+        if ! grep -q '^\[Interface\][[:space:]]*$' "$CONFIG" ||
+           ! grep -q '^\[Peer\][[:space:]]*$' "$CONFIG"; then
+
+            echo "[SKIP] Invalid configuration: $CONFIG"
+            SKIPPED=$((SKIPPED + 1))
+            continue
+        fi
+
+        TMP=$(mktemp "${CONFIG}.XXXXXX") || return 1
+
+        # Update only explicitly changed parameters.
+        # Keep all existing parameters in PARAM_NAMES order.
+        if ! env "${AWK_ENV[@]}" awk '
+            BEGIN {
+                count = split(ENVIRON["CFG_KEYS"], keys, " ")
+
+                for (i = 1; i <= count; i++)
+                    wanted[keys[i]] = 1
+            }
+
+            function flush_interface(    i, key) {
+
+                # Print other Interface entries first
+                for (i = 1; i <= other_count; i++)
+                    print other[i]
+
+                # Print managed parameters in the required order
+                for (i = 1; i <= count; i++) {
+
+                    key = keys[i]
+
+                    if ((key in old_value) ||
+                        ENVIRON["CFG_CHANGED_" key] == "1") {
+
+                        if (ENVIRON["CFG_CHANGED_" key] == "1")
+                            print key " = " ENVIRON["CFG_FILL_" key]
+                        else
+                            print key " = " old_value[key]
+                    }
+                }
+
+                print ""
+
+                for (i = 1; i <= other_count; i++)
+                    delete other[i]
+
+                for (i = 1; i <= count; i++)
+                    delete old_value[keys[i]]
+
+                other_count = 0
+            }
+
+            {
+                # Detect sections
+                if ($0 ~ /^\[[^]]+\][[:space:]]*$/) {
+
+                    if (in_interface)
+                        flush_interface()
+
+                    print
+                    in_interface = ($0 == "[Interface]")
+                    next
+                }
+
+                if (in_interface) {
+
+                    line = $0
+                    sub(/^[[:space:]]*/, "", line)
+
+                    if (line ~ /^[A-Za-z][A-Za-z0-9]*[[:space:]]*=/) {
+
+                        key = line
+                        sub(/[[:space:]]*=.*/, "", key)
+
+                        if (key in wanted) {
+
+                            if (!(key in old_value)) {
+                                value = line
+                                sub(/^[^=]*=[[:space:]]*/, "", value)
+                                old_value[key] = value
+                            }
+
+                            next
+                        }
+                    }
+
+                    # Preserve unrelated Interface entries and comments
+                    if ($0 !~ /^[[:space:]]*$/)
+                        other[++other_count] = $0
+
+                    next
+                }
+
+                print
+            }
+
+            END {
+                if (in_interface)
+                    flush_interface()
+            }
+        ' "$CONFIG" > "$TMP"; then
+
+            rm -f "$TMP"
+            echo "[ERROR] Failed to process: $CONFIG"
+            return 1
+        fi
+
+        # Check whether the file was actually modified
+        if cmp -s "$CONFIG" "$TMP"; then
+            rm -f "$TMP"
+            echo "[UNCHANGED] $CONFIG"
+            UNCHANGED=$((UNCHANGED + 1))
+            continue
+        fi
+
+        # Preserve ownership and permissions
+        chown --reference="$CONFIG" "$TMP" || {
+            rm -f "$TMP"
+            return 1
+        }
+
+        chmod --reference="$CONFIG" "$TMP" || {
+            rm -f "$TMP"
+            return 1
+        }
+
+        # Replace original configuration
+        mv "$TMP" "$CONFIG" || {
+            rm -f "$TMP"
+            return 1
+        }
+
+        echo "[UPDATED] $CONFIG"
+        UPDATED=$((UPDATED + 1))
+
+    done
+
+    echo
+    echo "========================================"
+    echo "                 Summary"
+    echo "========================================"
+    echo "Found:          ${#CONFIGS[@]}"
+    echo "Updated:        $UPDATED"
+    echo "Unchanged:      $UNCHANGED"
+    echo "Skipped:        $SKIPPED"
+    echo "========================================"
 }
 
 function edit_ip_address () {
-    find /home/vpnserver/user_configs -type f -name "owlvpn.kz.conf" -exec sed -i "19{s/^\(.\{11\}\).*/\1$1/}" {} \;
+    local USER_CONFIG_NAME=$(cat userconfig.name)
+    find /home/vpnserver/user_configs -type f -name "$USER_CONFIG_NAME" -exec sed -i "34{s/^\(.\{11\}\).*/\1$1/}" {} \;
     echo $1 > /etc/amnezia/amneziawg/keys/ipaddress
 }
 
