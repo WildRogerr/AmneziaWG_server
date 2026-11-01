@@ -56,12 +56,14 @@ function bashrc () {
     echo 'export PATH=/usr/sbin/:$PATH' >> /root/.bashrc
     echo 'export PATH=/sbin/:$PATH' >> /root/.bashrc
     echo "export PATH=/home/$1/:"'$PATH' >> /root/.bashrc
+    echo "alias ll='ls -l'" >> /root/.bashrc
     source ~/.bashrc
 
     echo "PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '" >> /home/$1/.bashrc
     echo 'export PATH=/usr/sbin/:$PATH' >> /home/$1/.bashrc
     echo 'export PATH=/sbin/:$PATH' >> /home/$1/.bashrc
     echo "export PATH=/home/$1/:"'$PATH' >> /home/$1/.bashrc
+    echo "alias ll='ls -l'" >> /home/$1/.bashrc
 }
 
 bashrc "$_USERNAME"
